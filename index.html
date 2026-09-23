@@ -96,6 +96,21 @@ body{font-family:'Raleway',sans-serif;background:var(--white);color:var(--ink);o
 #float-rsvp.visible{opacity:1;transform:translateY(0);visibility:visible;pointer-events:auto;}
 #float-rsvp:active{transform:scale(.97);}
 @media(min-width:900px){#float-rsvp{display:none!important;}}
+#float-itin{
+  position:fixed;bottom:72px;right:20px;z-index:900;
+  display:flex;align-items:center;gap:8px;
+  background:#2a0d18;color:#fff;border:none;border-radius:100px;
+  padding:13px 22px;
+  font-family:'Raleway',sans-serif;font-weight:300;font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;cursor:pointer;
+  box-shadow:0 4px 20px rgba(0,0,0,.35);
+  transition:opacity .35s ease,transform .35s ease,visibility .35s;
+  opacity:0;transform:translateY(16px);visibility:hidden;pointer-events:none;
+}
+#float-itin.visible{opacity:1;transform:translateY(0);visibility:visible;pointer-events:auto;}
+#float-itin:active{transform:scale(.97);}
+@media(min-width:900px){#float-itin{display:none!important;}}
+
 
 /* ── STICKY SCROLL OVERLAP — solo secciones cortas ── */
 section.hero       {position:relative;z-index:1;}
@@ -491,14 +506,18 @@ section.instagram{
 }
 .tl-title{font-family:'Cinzel',serif;font-size:14px;color:var(--ink);letter-spacing:.05em;margin-bottom:5px;}
 .tl-desc{font-family:'Raleway',sans-serif;font-weight:200;font-size:11px;color:var(--ink2);line-height:1.7;}
+@keyframes map-pulse{0%,100%{box-shadow:0 0 0 0 rgba(197,148,170,.3);}50%{box-shadow:0 0 0 8px rgba(197,148,170,0);}}
 .map-btn{
   display:inline-flex;align-items:center;gap:6px;
   font-family:'Raleway',sans-serif;font-weight:300;font-size:10px;
   letter-spacing:.12em;color:var(--ink);text-decoration:none;text-transform:uppercase;
-  border:1px solid var(--sep);padding:7px 16px;border-radius:100px;transition:all .2s;
+  border:1px solid rgba(197,148,170,.3);padding:8px 16px;border-radius:100px;
+  background:rgba(197,148,170,.06);
+  animation:map-pulse 2.4s ease-in-out infinite;
+  transition:background .2s;
 }
-.map-btn:hover{border-color:var(--accent);background:rgba(197,148,170,.06);}
-.map-btn svg{width:11px;height:11px;stroke:var(--accent);stroke-width:1.5;fill:none;flex-shrink:0;}
+.map-btn:hover{background:rgba(197,148,170,.12);border-color:rgba(197,148,170,.5);}
+.map-btn svg{width:12px;height:12px;fill:#c594aa;flex-shrink:0;}
 
 /* ─── DRESS CODE — BLUSH ─── */
 .dresscode{background:var(--white);padding:80px 24px;text-align:center;}
@@ -776,7 +795,7 @@ footer p+p{margin-top:6px;}
 .orn-line{background:linear-gradient(to right,transparent,var(--accent),transparent);opacity:.3;}
 .tl-title{color:var(--ink);}
 .tl-desc{color:var(--ink2);}
-.tl-time{color:var(--accent);border-color:rgba(197,148,170,.35);background:rgba(197,148,170,.06);border-radius:4px;}
+.tl-time{color:var(--accent);border-color:rgba(197,148,170,.35);background:rgba(197,148,170,.06);border-radius:4px;font-size:10px;padding:4px 10px;}
 .map-btn{color:var(--ink);border-color:rgba(197,148,170,.3);border-radius:4px;}
 .swatch-lbl{color:var(--ink2);}
 .instagram .eyebrow{color:var(--accent);}
@@ -1142,7 +1161,7 @@ footer p{color:#2a0d18 !important;opacity:.8;font-weight:400 !important;}
           <p class="tl-title">Ceremonia Religiosa</p>
           <p class="tl-desc">Lugar por confirmar · Coacalco, Estado de México.</p>
           <a href="#" class="map-btn" style="margin-top:10px;">
-            <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
             Cómo llegar
           </a>
         </div>
@@ -1160,7 +1179,7 @@ footer p{color:#2a0d18 !important;opacity:.8;font-weight:400 !important;}
           <p class="tl-title">Recepción</p>
           <p class="tl-desc">Salón Krystal · San Francisco Coacalco.</p>
           <a href="https://maps.app.goo.gl/6ALGiha9arktemxS7" target="_blank" rel="noopener" class="map-btn" style="margin-top:10px;">
-            <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
             Cómo llegar
           </a>
         </div>
@@ -1817,6 +1836,27 @@ document.addEventListener('DOMContentLoaded',function(){
   },{passive:true});
 });
 
+// -- BOTÓN FLOTANTE ITINERARIO --
+document.addEventListener('DOMContentLoaded',function(){
+  var btn=document.getElementById('float-itin');
+  var itinSec=document.querySelector('section.itinerary');
+  if(!btn||!itinSec) return;
+  var shown=false, scrollTimer=null;
+  window.addEventListener('scroll',function(){
+    if(!shown) shown=true;
+    var rect=itinSec.getBoundingClientRect();
+    var inView=rect.top<window.innerHeight&&rect.bottom>0;
+    if(inView) btn.classList.remove('visible');
+    else if(shown) btn.classList.add('visible');
+    btn.style.opacity='0.35';
+    btn.style.transform='translateY(0) scale(0.95)';
+    clearTimeout(scrollTimer);
+    scrollTimer=setTimeout(function(){
+      if(btn.classList.contains('visible')){btn.style.opacity='1';btn.style.transform='translateY(0) scale(1)';}
+    },180);
+  },{passive:true});
+});
+
 // ── LIBRO DE FIRMAS ──────────────────────────────────────
 function enviarFirma(){
   var SUPABASE_URL = 'https://zfdpaiybarphxpltngpf.supabase.co';
@@ -2087,6 +2127,13 @@ document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preven
 </button>
 
 <!-- Botón flotante: Confirmar asistencia -->
+<button id="float-itin"
+  onclick="document.querySelector('section.itinerary').scrollIntoView({behavior:'smooth'});setTimeout(function(){document.getElementById('float-itin').classList.remove('visible');},600);"
+  aria-label="Ver itinerario">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+  ¿Dónde?
+</button>
+
 <button id="float-rsvp"
   onclick="document.querySelector('section.rsvp').scrollIntoView({behavior:'smooth'});setTimeout(function(){document.getElementById('float-rsvp').classList.remove('visible');},600);"
   aria-label="Confirmar asistencia">
