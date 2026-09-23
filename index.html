@@ -647,7 +647,15 @@ textarea.firma-field{min-height:60px;max-height:70px;line-height:1.6;}
 .bpr-back{
   backface-visibility:hidden;-webkit-backface-visibility:hidden;
   transform:rotateY(180deg);
-  background:#fff9f5;
+  background:#fffcf8;
+}
+/* Estilo especial cuando es contraportada */
+.bpr-back.contraportada .comment-text{
+  font-family:'Cinzel',serif;font-size:18px;color:#2a0d18;
+  font-style:normal;letter-spacing:.12em;
+}
+.bpr-back.contraportada .comment-author{
+  font-family:'Raleway',sans-serif;font-size:9px;letter-spacing:.2em;color:#c594aa;
 }
 .bpr-front::before,.bpr-back::before{
   content:'';position:absolute;left:0;top:0;bottom:0;width:18px;
@@ -1787,6 +1795,9 @@ function enviarFirma(){
   var SUPABASE_URL = 'https://zfdpaiybarphxpltngpf.supabase.co';
   var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmZHBhaXliYXJwaHhwbHRuZ3BmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNzA3ODAsImV4cCI6MjEwNTc0Njc4MH0.ABWKJaq6cp-FPfb5c01wi_mr0HgIEqdBYKl4fpzXEs0';
 
+  // Elementos del libro
+  var bookWrap  = document.getElementById('book-left').parentElement; // .open-book
+  var bookLeft  = document.getElementById('book-left');
   var bookRight = document.getElementById('book-right');
   var leftTxt   = document.getElementById('left-txt');
   var leftAuth  = document.getElementById('left-auth');
@@ -1801,9 +1812,10 @@ function enviarFirma(){
   var btnNext   = document.getElementById('book-next');
   if(!bookRight) return;
 
-  var msgs = [], cur = 0, busy = false, autoTimer = null;
+  var msgs = [], page = 0, busy = false, autoTimer = null;
+  var FLIP_DUR = 800;
 
-  // Mezcla aleatoria
+  // ── Utilidades ──
   function shuffle(arr){
     for(var i=arr.length-1;i>0;i--){
       var j=Math.floor(Math.random()*(i+1));
@@ -1812,57 +1824,80 @@ function enviarFirma(){
     return arr;
   }
 
-  function setLeft(i){
-    var m = msgs[i];
-    leftTxt.textContent  = m ? m.message : '';
-    leftAuth.textContent = m ? (m.guest_name||'') : '';
-    leftNum.textContent  = m ? (i+1) : '';
+  function totalPages(){ return Math.ceil(msgs.length/2); }
+
+  // Índices de mensajes para la página actual
+  function leftIdx(p){ return p*2; }
+  function rightIdx(p){ return p*2+1; }
+
+  function fillPage(p){
+    var li = leftIdx(p), ri = rightIdx(p);
+    var ml = msgs[li], mr = msgs[ri];
+    leftTxt.textContent  = ml ? ml.message : '';
+    leftAuth.textContent = ml ? (ml.guest_name||'') : '';
+    leftNum.textContent  = ml ? (li+1) : '';
+    rightTxt.textContent  = mr ? mr.message : '';
+    rightAuth.textContent = mr ? (mr.guest_name||'') : '';
+    rightNum.textContent  = mr ? (ri+1) : '';
   }
-  function setRight(i){
-    var m = msgs[i];
-    rightTxt.textContent  = m ? m.message : '';
-    rightAuth.textContent = m ? (m.guest_name||'') : '';
-    rightNum.textContent  = m ? (i+1) : '';
+
+  function fillBack(p){
+    // El dorso muestra los mensajes de la SIGUIENTE página (izquierda=p*2, derecha=p*2+1)
+    var li = leftIdx(p), ri = rightIdx(p);
+    var ml = msgs[li], mr = msgs[ri];
+    // El dorso es la cara trasera de la página derecha → al girar se convierte en la nueva página derecha
+    // Así que mostramos el mensaje derecho de la siguiente página en el dorso
+    backTxt.textContent  = mr ? mr.message : '';
+    backAuth.textContent = mr ? (mr.guest_name||'') : '';
   }
-  function setBack(i){
-    var m = msgs[i];
-    backTxt.textContent  = m ? m.message : '';
-    backAuth.textContent = m ? (m.guest_name||'') : '';
-  }
+
   function updateUI(){
-    var total = msgs.length;
-    var r = cur+1 < total ? ' — '+(cur+2) : '';
-    bookCt.textContent = (cur+1)+r+' de '+total;
-    btnPrev.disabled = cur === 0;
-    // Nunca deshabilitar next — al llegar al final regresa al inicio
+    var tp = totalPages();
+    bookCt.textContent = 'página '+(page+1)+' de '+tp;
+    btnPrev.disabled = page === 0;
     btnNext.disabled = false;
   }
 
-  var FLIP_DUR = 800;
-  var RESET_DUR = 500;
+  function showBook(){ bookLeft.style.display=''; }
+  function hideLeft(){ bookLeft.style.visibility='hidden'; }
+  function showLeft(){ bookLeft.style.visibility=''; }
 
   function next(){
     if(busy) return;
     busy = true;
-    var isLast = cur+1 >= msgs.length;
+    var tp = totalPages();
+    var isLast = page+1 >= tp;
 
     if(!isLast){
-      // Paso 1: poner el mensaje siguiente en el dorso ANTES de voltear
-      setBack(cur+1);
-      // Paso 2: voltear la página
+      // ── Vuelta normal ──
+      // 1. El dorso muestra el mensaje derecho de la página siguiente
+      var nextPage = page+1;
+      var nextRi = rightIdx(nextPage);
+      var nextLi = leftIdx(nextPage);
+      var mr = msgs[nextRi], ml = msgs[nextLi];
+      backTxt.textContent  = mr ? mr.message : '';
+      backAuth.textContent = mr ? (mr.guest_name||'') : '';
+
+      // 2. Voltear página derecha
       bookRight.style.transition = 'transform '+FLIP_DUR+'ms cubic-bezier(.4,0,.2,1)';
       bookRight.classList.add('flip');
-      // Paso 3: cuando termina el volteo, actualizar contenido y quitar flip sin animación
+
       setTimeout(function(){
-        cur++;
-        // Sin transición para el reset invisible
+        // 3. Al terminar el flip: actualizar página izquierda con el msg izq de la nueva página
+        //    y página derecha (frente) con el msg der de la nueva página
+        page = nextPage;
+        // Reset sin animación
         bookRight.style.transition = 'none';
         bookRight.classList.remove('flip');
-        // Actualizar frente y página izquierda
-        setLeft(cur);
-        setRight(cur+1 < msgs.length ? cur+1 : cur);
+        fillPage(page);
+        // Preparar dorso para la siguiente vuelta
+        if(page+1 < tp){
+          var nri = rightIdx(page+1);
+          var nm = msgs[nri];
+          backTxt.textContent  = nm ? nm.message : '';
+          backAuth.textContent = nm ? (nm.guest_name||'') : '';
+        }
         updateUI();
-        // Restaurar transición para el siguiente flip
         setTimeout(function(){
           bookRight.style.transition = 'transform '+FLIP_DUR+'ms cubic-bezier(.4,0,.2,1)';
           busy = false;
@@ -1870,38 +1905,46 @@ function enviarFirma(){
       }, FLIP_DUR);
 
     } else {
-      // Última página: muestra tapa trasera vacía, luego regresa al inicio
-      backTxt.textContent = '';
-      backAuth.textContent = '';
+      // ── Última vuelta: contraportada ──
+      // Ocultar página izquierda — ya no es un libro abierto
+      hideLeft();
+      // Dorso muestra texto final
+      backTxt.textContent = 'Sheccid · XV';
+      backAuth.textContent = '18 · XII · 2026';
       bookRight.style.transition = 'transform '+FLIP_DUR+'ms cubic-bezier(.4,0,.2,1)';
       bookRight.classList.add('flip');
+
       setTimeout(function(){
-        // Reset invisible al inicio
-        bookRight.style.transition = 'none';
-        bookRight.classList.remove('flip');
-        cur = 0;
-        setLeft(0);
-        setRight(msgs.length > 1 ? 1 : 0);
-        updateUI();
+        // Esperar 1.5s mostrando la contraportada
         setTimeout(function(){
-          bookRight.style.transition = 'transform '+FLIP_DUR+'ms cubic-bezier(.4,0,.2,1)';
-          busy = false;
-        }, 50);
+          // Reset al inicio sin animación
+          bookRight.style.transition = 'none';
+          bookRight.classList.remove('flip');
+          showLeft();
+          page = 0;
+          fillPage(0);
+          updateUI();
+          setTimeout(function(){
+            bookRight.style.transition = 'transform '+FLIP_DUR+'ms cubic-bezier(.4,0,.2,1)';
+            busy = false;
+          }, 50);
+        }, 1500);
       }, FLIP_DUR);
     }
   }
 
   function prev(){
-    if(busy || cur === 0) return;
-    cur--;
-    setLeft(cur);
-    setRight(cur+1 < msgs.length ? cur+1 : cur);
+    if(busy || page === 0) return;
+    busy = true;
+    page--;
+    fillPage(page);
     updateUI();
+    busy = false;
   }
 
   function startAuto(){
     clearInterval(autoTimer);
-    if(msgs.length > 1) autoTimer = setInterval(next, 8000);
+    autoTimer = setInterval(next, 8000);
   }
 
   function showEmpty(){
@@ -1913,8 +1956,8 @@ function enviarFirma(){
     rightAuth.textContent = '';
     rightNum.textContent = '';
     bookCt.textContent = '';
-    btnPrev.style.display = 'none';
-    btnNext.style.display = 'none';
+    if(btnPrev) btnPrev.style.display = 'none';
+    if(btnNext) btnNext.style.display = 'none';
   }
 
   if(btnPrev) btnPrev.addEventListener('click', function(){ clearInterval(autoTimer); prev(); startAuto(); });
@@ -1936,9 +1979,8 @@ function enviarFirma(){
   .then(function(data){
     var filtered = (data||[]).filter(function(d){ return d.message&&d.message.trim().length>0; });
     if(filtered.length===0){ showEmpty(); return; }
-    msgs = shuffle(filtered); // orden aleatorio en cada visita
-    setLeft(0);
-    setRight(msgs.length>1?1:0);
+    msgs = shuffle(filtered);
+    fillPage(0);
     updateUI();
     startAuto();
   })
