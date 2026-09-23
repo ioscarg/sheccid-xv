@@ -30,6 +30,7 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{font-family:'Raleway',sans-serif;background:var(--white);color:var(--ink);overflow-x:hidden;position:relative;}
+*{touch-action:manipulation;}
 
 /* ── MUSIC PLAYER (en sección de entrada, fondo claro) ── */
 .music-player{display:flex;align-items:center;gap:16px;background:rgba(197,148,170,.06);border:1px solid rgba(197,148,170,.28);padding:14px 18px;max-width:360px;margin:0 auto;border-radius:4px;}
@@ -1761,7 +1762,7 @@ document.addEventListener('DOMContentLoaded', function(){
     if(started) return; started = true;
     audio.play().then(syncBtn).catch(function(){ started = false; });
   }
-  ['click','touchstart','scroll','keydown'].forEach(function(evt){
+  ['click','touchend'].forEach(function(evt){
     window.addEventListener(evt, startOnce, {once:true, passive:true});
   });
 
