@@ -1772,184 +1772,105 @@ function enviarFirma(){
   });
 }
 
-// ── LIBRO ABIERTO CSS 3D ─────────────────────────────────
+// ── LIBRO ABIERTO — TYPEWRITER ───────────────────────────
 (function(){
   var SUPABASE_URL = 'https://zfdpaiybarphxpltngpf.supabase.co';
   var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmZHBhaXliYXJwaHhwbHRuZ3BmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNzA3ODAsImV4cCI6MjEwNTc0Njc4MH0.ABWKJaq6cp-FPfb5c01wi_mr0HgIEqdBYKl4fpzXEs0';
 
-  var book     = document.getElementById('open-book');
-  var bookLeft = document.getElementById('book-left');
-  var bookRight= document.getElementById('book-right');
   var leftTxt  = document.getElementById('left-txt');
   var leftAuth = document.getElementById('left-auth');
   var leftNum  = document.getElementById('left-num');
   var rightTxt = document.getElementById('right-txt');
   var rightAuth= document.getElementById('right-auth');
   var rightNum = document.getElementById('right-num');
-  var backTxt  = document.getElementById('back-txt');
-  var backAuth = document.getElementById('back-auth');
   var bookCt   = document.getElementById('book-ct');
   var btnPrev  = document.getElementById('book-prev');
   var btnNext  = document.getElementById('book-next');
-  if(!bookRight) return;
+  if(!leftTxt) return;
 
-  var msgs = [], page = 0, busy = false, autoTimer = null;
-  var FLIP = 800, FADE = 200;
+  var msgs=[], page=0, busy=false, autoTimer=null;
+  var ERASE=8, TYPE=16;
 
   function shuffle(arr){
-    for(var i=arr.length-1;i>0;i--){
-      var j=Math.floor(Math.random()*(i+1));
-      var t=arr[i];arr[i]=arr[j];arr[j]=t;
-    }
+    for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=arr[i];arr[i]=arr[j];arr[j]=t;}
     return arr;
   }
-
   function totalPages(){ return Math.ceil(msgs.length/2); }
 
-  function fillLeft(p){
-    var m = msgs[p*2];
-    leftTxt.textContent  = m ? m.message : '';
-    leftAuth.textContent = m ? (m.guest_name||'') : '';
-    leftNum.textContent  = m ? (p*2+1) : '';
+  function eraseEl(el,cb){
+    var t=el.textContent,i=t.length;
+    if(!i){cb();return;}
+    var iv=setInterval(function(){ el.textContent=t.substring(0,--i); if(i<=0){clearInterval(iv);cb();} },ERASE);
   }
-  function fillRight(p){
-    var m = msgs[p*2+1];
-    rightTxt.textContent  = m ? m.message : '';
-    rightAuth.textContent = m ? (m.guest_name||'') : '';
-    rightNum.textContent  = m ? (p*2+2) : '';
-  }
-  function fillBack(p){
-    // Dorso muestra el mensaje izquierdo de la siguiente página
-    var m = msgs[p*2];
-    backTxt.textContent  = m ? m.message : '';
-    backAuth.textContent = m ? (m.guest_name||'') : '';
+  function typeEl(el,text,cb){
+    el.textContent='';var i=0;
+    var iv=setInterval(function(){ el.textContent+=text[i++]; if(i>=text.length){clearInterval(iv);if(cb)cb();} },TYPE);
   }
 
   function updateUI(){
-    var tp = totalPages();
-    bookCt.textContent = 'página '+(page+1)+' de '+tp;
-    btnPrev.disabled = page === 0;
-    btnNext.disabled = false;
+    bookCt.textContent='página '+(page+1)+' de '+totalPages();
+    btnPrev.disabled=page===0;
+    btnNext.disabled=false;
   }
 
-  function fadeBook(out, cb){
-    // Fade a 0, ejecuta cb, fade a 1
-    book.style.transition = 'opacity '+FADE+'ms ease';
-    book.style.opacity = out ? '0' : '1';
-    setTimeout(cb, FADE);
+  function showPage(p,cb){
+    var ml=msgs[p*2], mr=msgs[p*2+1], done=0;
+    function onDone(){ if(++done===2&&cb)cb(); }
+    if(ml){ typeEl(leftTxt,ml.message,function(){ leftAuth.textContent=ml.guest_name||''; leftNum.textContent=p*2+1; onDone(); }); }
+    else{ leftTxt.textContent=''; leftAuth.textContent=''; leftNum.textContent=''; onDone(); }
+    setTimeout(function(){
+      if(mr){ typeEl(rightTxt,mr.message,function(){ rightAuth.textContent=mr.guest_name||''; rightNum.textContent=p*2+2; onDone(); }); }
+      else{ rightTxt.textContent=''; rightAuth.textContent=''; rightNum.textContent=''; onDone(); }
+    },200);
+  }
+
+  function erasePage(cb){
+    var done=0;
+    function onDone(){ if(++done===2)cb(); }
+    eraseEl(leftTxt,function(){ leftAuth.textContent=''; leftNum.textContent=''; onDone(); });
+    eraseEl(rightTxt,function(){ rightAuth.textContent=''; rightNum.textContent=''; onDone(); });
   }
 
   function next(){
-    if(busy) return;
-    busy = true;
-    var tp = totalPages();
-    var isLast = page+1 >= tp;
-
-    if(!isLast){
-      // Dorso = mensaje izq de la siguiente página
-      fillBack(page+1);
-      // Voltear
-      bookRight.style.transition = 'transform '+FLIP+'ms cubic-bezier(.4,0,.2,1)';
-      bookRight.classList.add('flip');
-      setTimeout(function(){
-        // Fade out → reset invisible → fade in
-        fadeBook(true, function(){
-          page++;
-          bookRight.style.transition = 'none';
-          bookRight.classList.remove('flip');
-          fillLeft(page);
-          fillRight(page);
-          updateUI();
-          setTimeout(function(){
-            bookRight.style.transition = 'transform '+FLIP+'ms cubic-bezier(.4,0,.2,1)';
-          }, 30);
-          fadeBook(false, function(){ busy = false; });
-        });
-      }, FLIP);
-
-    } else {
-      // Última página — contraportada
-      backTxt.textContent = 'Sheccid · XV';
-      backAuth.textContent = '18 · XII · 2026';
-      // Ocultar página izquierda
-      bookLeft.style.visibility = 'hidden';
-      bookRight.style.transition = 'transform '+FLIP+'ms cubic-bezier(.4,0,.2,1)';
-      bookRight.classList.add('flip');
-      setTimeout(function(){
-        // Esperar 1.5s mostrando la contraportada
-        setTimeout(function(){
-          // Fade out → reset al inicio → fade in
-          fadeBook(true, function(){
-            page = 0;
-            bookRight.style.transition = 'none';
-            bookRight.classList.remove('flip');
-            bookLeft.style.visibility = '';
-            fillLeft(0);
-            fillRight(0);
-            updateUI();
-            setTimeout(function(){
-              bookRight.style.transition = 'transform '+FLIP+'ms cubic-bezier(.4,0,.2,1)';
-            }, 30);
-            fadeBook(false, function(){ busy = false; });
-          });
-        }, 1500);
-      }, FLIP);
-    }
+    if(busy)return; busy=true;
+    erasePage(function(){ page=(page+1)%totalPages(); updateUI(); showPage(page,function(){busy=false;}); });
   }
-
   function prev(){
-    if(busy || page === 0) return;
-    busy = true;
-    fadeBook(true, function(){
-      page--;
-      fillLeft(page);
-      fillRight(page);
-      updateUI();
-      fadeBook(false, function(){ busy = false; });
-    });
+    if(busy||page===0)return; busy=true;
+    erasePage(function(){ page--; updateUI(); showPage(page,function(){busy=false;}); });
   }
-
-  function startAuto(){
-    clearInterval(autoTimer);
-    autoTimer = setInterval(next, 8000);
-  }
+  function startAuto(){ clearInterval(autoTimer); autoTimer=setInterval(next,8000); }
 
   function showEmpty(){
-    leftTxt.innerHTML = '<span class="book-empty">Sé la primera en<br>dejar un mensaje 🌸</span>';
-    leftAuth.textContent = '';
-    leftNum.textContent = '';
-    rightTxt.textContent = '';
-    rightAuth.textContent = '';
-    rightNum.textContent = '';
-    bookCt.textContent = '';
-    if(btnPrev) btnPrev.style.display='none';
-    if(btnNext) btnNext.style.display='none';
+    typeEl(leftTxt,'Sé la primera en dejar un mensaje 🌸',function(){});
+    leftAuth.textContent=''; leftNum.textContent='';
+    rightTxt.textContent=''; rightAuth.textContent=''; rightNum.textContent='';
+    bookCt.textContent='';
+    if(btnPrev)btnPrev.style.display='none';
+    if(btnNext)btnNext.style.display='none';
   }
 
-  if(btnPrev) btnPrev.addEventListener('click', function(){ clearInterval(autoTimer); prev(); startAuto(); });
-  if(btnNext) btnNext.addEventListener('click', function(){ clearInterval(autoTimer); next(); startAuto(); });
+  if(btnPrev)btnPrev.addEventListener('click',function(){clearInterval(autoTimer);prev();startAuto();});
+  if(btnNext)btnNext.addEventListener('click',function(){clearInterval(autoTimer);next();startAuto();});
 
-  // Swipe
-  var tx=0;
-  bookRight.addEventListener('touchstart',function(e){ tx=e.touches[0].clientX; },{passive:true});
-  bookRight.addEventListener('touchend',function(e){
-    var dx=tx-e.changedTouches[0].clientX;
-    if(Math.abs(dx)>40){ clearInterval(autoTimer); dx>0?next():prev(); startAuto(); }
-  });
+  var bkr=document.getElementById('book-right'),tx=0;
+  if(bkr){
+    bkr.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;},{passive:true});
+    bkr.addEventListener('touchend',function(e){var dx=tx-e.changedTouches[0].clientX;if(Math.abs(dx)>40){clearInterval(autoTimer);dx>0?next():prev();startAuto();}});
+  }
 
   fetch(SUPABASE_URL+'/rest/v1/rsvps?select=guest_name,message&message=neq.&order=created_at.asc',{
     headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
   })
-  .then(function(r){ return r.json(); })
+  .then(function(r){return r.json();})
   .then(function(data){
-    var filtered=(data||[]).filter(function(d){ return d.message&&d.message.trim().length>0; });
-    if(filtered.length===0){ showEmpty(); return; }
-    msgs = shuffle(filtered);
-    fillLeft(0); fillRight(0); updateUI();
-    startAuto();
+    var filtered=(data||[]).filter(function(d){return d.message&&d.message.trim().length>0;});
+    if(filtered.length===0){showEmpty();return;}
+    msgs=shuffle(filtered); updateUI(); showPage(0,function(){startAuto();});
   })
-  .catch(function(){ showEmpty(); });
-})();function addToCalendar(){
+  .catch(function(){showEmpty();});
+})();
+function addToCalendar(){
   const title  = encodeURIComponent('XV Años de Sheccid');
   const loc    = encodeURIComponent('Salón Krystal, San Francisco Coacalco, Estado de México');
   const details= encodeURIComponent('Recepción de los XV años de Sheccid');
