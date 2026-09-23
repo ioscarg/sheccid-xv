@@ -1735,81 +1735,63 @@ tick();setInterval(tick,1000);
 })();
 
 // ── MÚSICA ────────────────────────────────────────────────
-var audio = document.getElementById('wedding-audio');
-var playing = false;
+document.addEventListener('DOMContentLoaded', function(){
+  var audio = document.getElementById('wedding-audio');
+  var btn   = document.getElementById('float-music');
+  if(!audio || !btn) return;
 
-function togglePlay(){
-  if(!audio) return;
-  if(playing){
-    audio.pause(); playing=false;
-    syncFloatBtn();
-  } else {
-    audio.play().then(function(){ playing=true; syncFloatBtn(); }).catch(function(){});
+  // Sync botón
+  function syncBtn(){
+    if(audio.paused){ btn.classList.add('paused'); }
+    else{ btn.classList.remove('paused'); }
   }
-}
 
-// Autoplay en primer gesto del usuario
-(function(){
-  if(!audio) return;
-  var started=false;
+  // Toggle play/pause
+  function togglePlay(){
+    if(audio.paused){
+      audio.play().then(syncBtn).catch(function(){});
+    } else {
+      audio.pause(); syncBtn();
+    }
+  }
+
+  // Autoplay en primer gesto
+  var started = false;
   function startOnce(){
-    if(started||playing) return; started=true;
-    audio.play().then(function(){
-      playing=true; syncFloatBtn();
-    }).catch(function(){ started=false; });
+    if(started) return; started = true;
+    audio.play().then(syncBtn).catch(function(){ started = false; });
   }
   ['click','touchstart','scroll','keydown'].forEach(function(evt){
-    window.addEventListener(evt,startOnce,{once:true,passive:true});
+    window.addEventListener(evt, startOnce, {once:true, passive:true});
   });
-})();
 
-audio && audio.addEventListener('ended',function(){
-  playing=false; syncFloatBtn();
-});
+  // Eventos audio
+  audio.addEventListener('play',  syncBtn);
+  audio.addEventListener('pause', syncBtn);
+  audio.addEventListener('ended', syncBtn);
 
-document.addEventListener('visibilitychange',function(){
-  if(!audio) return;
-  if(document.hidden) audio.pause();
-});
+  // Visibilidad
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden) audio.pause();
+  });
 
-// ── BOTÓN FLOTANTE MÚSICA (lógica base) ──────────────────
-function syncFloatBtn(){
-  var btn = document.getElementById('float-music');
-  if(!btn||!audio) return;
-  if(audio.paused) btn.classList.add('paused');
-  else btn.classList.remove('paused');
-}
-
-document.addEventListener('DOMContentLoaded',function(){
-  var btn = document.getElementById('float-music');
-  if(!btn) return;
-  var scrollTimer=null, shown=false;
-
-  // Aparece en primer scroll, se atenúa al scrollear
-  window.addEventListener('scroll',function(){
-    if(!shown){ shown=true; btn.classList.add('visible'); }
-    btn.style.opacity='0.35';
-    btn.style.transform='translateY(0) scale(0.95)';
+  // Botón flotante — aparece al primer scroll
+  var scrollTimer = null, shown = false;
+  window.addEventListener('scroll', function(){
+    if(!shown){ shown = true; btn.classList.add('visible'); }
+    btn.style.opacity = '0.35';
+    btn.style.transform = 'translateY(0) scale(0.95)';
     clearTimeout(scrollTimer);
-    scrollTimer=setTimeout(function(){
+    scrollTimer = setTimeout(function(){
       if(btn.classList.contains('visible')){
-        btn.style.opacity='1';
-        btn.style.transform='translateY(0) scale(1)';
+        btn.style.opacity = '1';
+        btn.style.transform = 'translateY(0) scale(1)';
       }
-    },180);
-  },{passive:true});
+    }, 180);
+  }, {passive:true});
 
-  // Click — toggle
-  btn.addEventListener('click',function(){
-    togglePlay();
-  });
-
-  // Sync con eventos del audio
-  if(audio){
-    audio.addEventListener('play', function(){ btn.classList.remove('paused'); });
-    audio.addEventListener('pause',function(){ btn.classList.add('paused'); });
-  }
-  syncFloatBtn();
+  btn.addEventListener('click', togglePlay);
+  syncBtn();
 });
 
 // ── BOTÓN FLOTANTE RSVP ──────────────────────────────────
