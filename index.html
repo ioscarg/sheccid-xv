@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#3d1a26">
 <title>Sheccid · XV Años · 18.12.2026</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Raleway:wght@200;300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Raleway:wght@200;300;400&family=Pinyon+Script&display=swap" rel="stylesheet">
 <style>
 /* ─── PALETA — 3 FONDOS ─────────────────────────────────
    DARK   #3d1a26  hero, countdown, rsvp, instagram, footer
@@ -634,6 +634,7 @@ textarea.firma-field{min-height:60px;max-height:70px;line-height:1.6;}
   transition:transform .8s cubic-bezier(.4,0,.2,1);
 }
 .book-page-right.flip{transform:rotateY(-160deg);}
+.book-page-right.flip-fast{transform:rotateY(-160deg);transition:transform 400ms cubic-bezier(.4,0,.2,1) !important;}
 .bpr-front,.bpr-back{
   position:absolute;inset:0;
   background:#fffcf8;
@@ -664,8 +665,8 @@ textarea.firma-field{min-height:60px;max-height:70px;line-height:1.6;}
   line-height:.4;opacity:.2;margin-bottom:8px;display:block;
 }
 .comment-text{
-  font-family:'Cinzel',serif;font-style:italic;
-  font-size:12px;color:#1a0810;font-weight:600;line-height:1.8;
+  font-family:'Pinyon Script',cursive;
+  font-size:16px;color:#1a0810;font-weight:400;line-height:1.65;
   margin-bottom:12px;
 }
 .comment-divider{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:8px;}
@@ -1815,19 +1816,19 @@ function enviarFirma(){
   function setLeft(i){
     var m = msgs[i];
     leftTxt.textContent  = m ? m.message : '';
-    leftAuth.textContent = m ? (m.guest_name||'Invitado')+' · Invitado' : '';
+    leftAuth.textContent = m ? (m.guest_name||'') : '';
     leftNum.textContent  = m ? (i+1) : '';
   }
   function setRight(i){
     var m = msgs[i];
     rightTxt.textContent  = m ? m.message : '';
-    rightAuth.textContent = m ? (m.guest_name||'Invitado')+' · Invitado' : '';
+    rightAuth.textContent = m ? (m.guest_name||'') : '';
     rightNum.textContent  = m ? (i+1) : '';
   }
   function setBack(i){
     var m = msgs[i];
     backTxt.textContent  = m ? m.message : '';
-    backAuth.textContent = m ? (m.guest_name||'Invitado')+' · Invitado' : '';
+    backAuth.textContent = m ? (m.guest_name||'') : '';
   }
   function updateUI(){
     var total = msgs.length;
@@ -1866,21 +1867,22 @@ function enviarFirma(){
       }, FLIP_DUR + 20);
 
     } else {
-      // — Última página: voltea mostrando "tapa trasera" (vacío) y regresa rápido
+      // — Última página: voltea mostrando "tapa trasera" y regresa suavemente al inicio
       backTxt.textContent = '';
       backAuth.textContent = '';
       bookRight.style.transition = 'transform '+FLIP_DUR+'ms cubic-bezier(.4,0,.2,1)';
       bookRight.classList.add('flip');
       setTimeout(function(){
-        // Regreso rápido al inicio
+        // Prepara contenido del inicio sin que se vea
         cur = 0;
-        bookRight.style.transition = 'transform '+RESET_DUR+'ms cubic-bezier(.4,0,.2,1)';
-        bookRight.classList.remove('flip');
         setLeft(0);
         setRight(msgs.length > 1 ? 1 : 0);
         updateUI();
+        // Regresa rápido desvaneciéndose
+        bookRight.style.transition = 'transform '+RESET_DUR+'ms cubic-bezier(.4,0,.2,1)';
+        bookRight.classList.remove('flip');
         setTimeout(function(){ busy = false; }, RESET_DUR + 20);
-      }, FLIP_DUR + 20);
+      }, FLIP_DUR + 100);
     }
   }
 
