@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#3d1a26">
 <title>Sheccid · XV Años · 18.12.2026</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Raleway:wght@200;300;400&family=Pinyon+Script&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Raleway:wght@200;300;400&family=Great+Vibes&display=swap" rel="stylesheet">
 <style>
 /* ─── PALETA — 3 FONDOS ─────────────────────────────────
    DARK   #3d1a26  hero, countdown, rsvp, instagram, footer
@@ -601,14 +601,13 @@ textarea.firma-field{min-height:60px;max-height:70px;line-height:1.6;}
   position:relative;
   filter:drop-shadow(0 8px 24px rgba(61,26,38,.12));
   border-radius:4px;
-  overflow:hidden;
 }
 .book-page-left{
   width:calc(50% - 6px);height:100%;
   background:#fffcf8;
   border:1px solid rgba(197,148,170,.18);
   border-right:none;
-  position:relative;overflow:hidden;
+  position:relative;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:24px 20px 24px 22px;text-align:center;
 }
@@ -625,7 +624,7 @@ textarea.firma-field{min-height:60px;max-height:70px;line-height:1.6;}
 }
 .book-page-right-wrap{
   width:calc(50% - 6px);height:100%;
-  position:relative;perspective:800px;
+  position:relative;perspective:1200px;
 }
 .book-page-right{
   width:100%;height:100%;position:relative;
@@ -633,8 +632,8 @@ textarea.firma-field{min-height:60px;max-height:70px;line-height:1.6;}
   transform-style:preserve-3d;
   transition:transform .8s cubic-bezier(.4,0,.2,1);
 }
-.book-page-right.flip{transform:rotateY(-160deg);}
-.book-page-right.flip-fast{transform:rotateY(-160deg);transition:transform 400ms cubic-bezier(.4,0,.2,1) !important;}
+.book-page-right.flip{transform:rotateY(-180deg);}
+
 .bpr-front,.bpr-back{
   position:absolute;inset:0;
   background:#fffcf8;
@@ -665,7 +664,7 @@ textarea.firma-field{min-height:60px;max-height:70px;line-height:1.6;}
   line-height:.4;opacity:.2;margin-bottom:8px;display:block;
 }
 .comment-text{
-  font-family:'Pinyon Script',cursive;
+  font-family:'Great Vibes',cursive;
   font-size:16px;color:#1a0810;font-weight:400;line-height:1.65;
   margin-bottom:12px;
 }
@@ -1839,8 +1838,8 @@ function enviarFirma(){
     btnNext.disabled = false;
   }
 
-  var FLIP_DUR = 800;   // duración del volteo normal
-  var RESET_DUR = 400;  // duración del regreso rápido al inicio
+  var FLIP_DUR = 800;
+  var RESET_DUR = 500;
 
   function next(){
     if(busy) return;
@@ -1848,41 +1847,47 @@ function enviarFirma(){
     var isLast = cur+1 >= msgs.length;
 
     if(!isLast){
-      // — Volteo normal: prepara dorso con el siguiente mensaje
+      // Paso 1: poner el mensaje siguiente en el dorso ANTES de voltear
       setBack(cur+1);
+      // Paso 2: voltear la página
       bookRight.style.transition = 'transform '+FLIP_DUR+'ms cubic-bezier(.4,0,.2,1)';
       bookRight.classList.add('flip');
+      // Paso 3: cuando termina el volteo, actualizar contenido y quitar flip sin animación
       setTimeout(function(){
         cur++;
-        // Quita el flip y actualiza contenido sin animación
+        // Sin transición para el reset invisible
         bookRight.style.transition = 'none';
         bookRight.classList.remove('flip');
+        // Actualizar frente y página izquierda
         setLeft(cur);
         setRight(cur+1 < msgs.length ? cur+1 : cur);
         updateUI();
+        // Restaurar transición para el siguiente flip
         setTimeout(function(){
           bookRight.style.transition = 'transform '+FLIP_DUR+'ms cubic-bezier(.4,0,.2,1)';
           busy = false;
         }, 50);
-      }, FLIP_DUR + 20);
+      }, FLIP_DUR);
 
     } else {
-      // — Última página: voltea mostrando "tapa trasera" y regresa suavemente al inicio
+      // Última página: muestra tapa trasera vacía, luego regresa al inicio
       backTxt.textContent = '';
       backAuth.textContent = '';
       bookRight.style.transition = 'transform '+FLIP_DUR+'ms cubic-bezier(.4,0,.2,1)';
       bookRight.classList.add('flip');
       setTimeout(function(){
-        // Prepara contenido del inicio sin que se vea
+        // Reset invisible al inicio
+        bookRight.style.transition = 'none';
+        bookRight.classList.remove('flip');
         cur = 0;
         setLeft(0);
         setRight(msgs.length > 1 ? 1 : 0);
         updateUI();
-        // Regresa rápido desvaneciéndose
-        bookRight.style.transition = 'transform '+RESET_DUR+'ms cubic-bezier(.4,0,.2,1)';
-        bookRight.classList.remove('flip');
-        setTimeout(function(){ busy = false; }, RESET_DUR + 20);
-      }, FLIP_DUR + 100);
+        setTimeout(function(){
+          bookRight.style.transition = 'transform '+FLIP_DUR+'ms cubic-bezier(.4,0,.2,1)';
+          busy = false;
+        }, 50);
+      }, FLIP_DUR);
     }
   }
 
