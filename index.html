@@ -29,7 +29,7 @@
 /* ─── RESET ─── */
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{font-family:'Raleway',sans-serif;background:var(--white);color:var(--ink);overflow-x:hidden;}
+body{font-family:'Raleway',sans-serif;background:var(--white);color:var(--ink);overflow-x:hidden;position:relative;}
 
 /* ── MUSIC PLAYER (en sección de entrada, fondo claro) ── */
 .music-player{display:flex;align-items:center;gap:16px;background:rgba(197,148,170,.06);border:1px solid rgba(197,148,170,.28);padding:14px 18px;max-width:360px;margin:0 auto;border-radius:4px;}
@@ -857,7 +857,7 @@ footer p{color:#2a0d18 !important;opacity:.8;font-weight:400 !important;}
 /* ── PÉTALOS CAYENDO ── */
 #petals-container{
   position:absolute;top:0;left:0;width:100%;height:100%;
-  pointer-events:none;z-index:9998;overflow:visible;
+  pointer-events:none;z-index:9998;overflow:hidden;
 }
 .petal-el{position:absolute;pointer-events:none;}
 @keyframes petal-fall{
@@ -1979,6 +1979,12 @@ function addToCalendar(){
   }
 }
 
+
+// -- BLOQUEAR ZOOM IOS/ANDROID --
+document.addEventListener('gesturestart',function(e){e.preventDefault();},{passive:false});
+document.addEventListener('gesturechange',function(e){e.preventDefault();},{passive:false});
+document.addEventListener('gestureend',function(e){e.preventDefault();},{passive:false});
+document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preventDefault();},{passive:false});
 // -- CONTADOR PERSONAS RSVP --
 (function(){
   var count=1,minP=1,maxP=8;
@@ -2078,7 +2084,7 @@ function addToCalendar(){
 <!-- Audio -->
 <audio id="wedding-audio" preload="none" loop>
   <!-- Reemplaza el src con la URL de tu canción -->
-  <!-- <source src="tu-cancion.mp3" type="audio/mpeg"> -->
+  <source src="assets/audio/river-flows-in-you.mp3" type="audio/mpeg">
 </audio>
 
 <!-- Contenedor de pétalos -->
