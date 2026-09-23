@@ -939,7 +939,6 @@ footer p{color:#2a0d18 !important;opacity:.8;font-weight:400 !important;}
 .reveal-delay-3{transition-delay:.3s;}
 .reveal-delay-4{transition-delay:.4s;}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 </head>
 <body>
 
@@ -1248,9 +1247,33 @@ footer p{color:#2a0d18 !important;opacity:.8;font-weight:400 !important;}
     <span class="eyebrow">Cada palabra cuenta</span>
     <h2 class="sec-title">El Libro de Firmas</h2>
     <div class="comments-wrap">
-      <!-- Libro con StPageFlip -->
-      <div class="book-wrapper">
-        <div class="book-container" id="book-container"></div>
+      <!-- Libro CSS 3D -->
+      <div class="open-book" id="open-book">
+        <div class="book-page-left" id="book-left">
+          <span class="book-qmark">"</span>
+          <p class="comment-text" id="left-txt"></p>
+          <div class="comment-divider"><div class="comment-divider-line"></div><span class="comment-divider-petal">✦</span><div class="comment-divider-line"></div></div>
+          <p class="comment-author" id="left-auth"></p>
+          <span class="book-pgnum" id="left-num"></span>
+        </div>
+        <div class="book-spine"></div>
+        <div class="book-page-right-wrap">
+          <div class="book-page-right" id="book-right">
+            <div class="bpr-front">
+              <span class="book-qmark">"</span>
+              <p class="comment-text" id="right-txt"></p>
+              <div class="comment-divider"><div class="comment-divider-line"></div><span class="comment-divider-petal">✦</span><div class="comment-divider-line"></div></div>
+              <p class="comment-author" id="right-auth"></p>
+              <span class="book-pgnum" id="right-num"></span>
+            </div>
+            <div class="bpr-back">
+              <span class="book-qmark">"</span>
+              <p class="comment-text" id="back-txt"></p>
+              <div class="comment-divider"><div class="comment-divider-line"></div><span class="comment-divider-petal">✦</span><div class="comment-divider-line"></div></div>
+              <p class="comment-author" id="back-auth"></p>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="book-nav">
         <button class="book-btn" id="book-prev" aria-label="Anterior">&#8249;</button>
@@ -1749,18 +1772,29 @@ function enviarFirma(){
   });
 }
 
-// ── LIBRO ABIERTO con StPageFlip ────────────────────────
+// ── LIBRO ABIERTO CSS 3D ─────────────────────────────────
 (function(){
   var SUPABASE_URL = 'https://zfdpaiybarphxpltngpf.supabase.co';
   var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmZHBhaXliYXJwaHhwbHRuZ3BmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNzA3ODAsImV4cCI6MjEwNTc0Njc4MH0.ABWKJaq6cp-FPfb5c01wi_mr0HgIEqdBYKl4fpzXEs0';
 
-  var container = document.getElementById('book-container');
-  var bookCt    = document.getElementById('book-ct');
-  var btnPrev   = document.getElementById('book-prev');
-  var btnNext   = document.getElementById('book-next');
-  if(!container) return;
+  var book     = document.getElementById('open-book');
+  var bookLeft = document.getElementById('book-left');
+  var bookRight= document.getElementById('book-right');
+  var leftTxt  = document.getElementById('left-txt');
+  var leftAuth = document.getElementById('left-auth');
+  var leftNum  = document.getElementById('left-num');
+  var rightTxt = document.getElementById('right-txt');
+  var rightAuth= document.getElementById('right-auth');
+  var rightNum = document.getElementById('right-num');
+  var backTxt  = document.getElementById('back-txt');
+  var backAuth = document.getElementById('back-auth');
+  var bookCt   = document.getElementById('book-ct');
+  var btnPrev  = document.getElementById('book-prev');
+  var btnNext  = document.getElementById('book-next');
+  if(!bookRight) return;
 
-  var msgs = [], pageFlip = null, autoTimer = null;
+  var msgs = [], page = 0, busy = false, autoTimer = null;
+  var FLIP = 800, FADE = 200;
 
   function shuffle(arr){
     for(var i=arr.length-1;i>0;i--){
@@ -1770,109 +1804,137 @@ function enviarFirma(){
     return arr;
   }
 
-  function pageTpl(msg, auth, num){
-    return '<div class="book-page">'
-      +'<div class="book-plines"></div>'
-      +'<span class="book-qmark">“</span>'
-      +'<p class="comment-text">'+msg+'</p>'
-      +'<div class="comment-divider"><div class="comment-divider-line"></div>'
-      +'<span class="comment-divider-petal">✦</span>'
-      +'<div class="comment-divider-line"></div></div>'
-      +'<p class="comment-author">'+auth+'</p>'
-      +'<span class="book-pgnum">'+num+'</span>'
-      +'</div>';
-  }
+  function totalPages(){ return Math.ceil(msgs.length/2); }
 
-  function endPageTpl(){
-    return '<div class="book-page-end">'
-      +'<p class="end-title">Sheccid · XV</p>'
-      +'<p class="end-date">18 · XII · 2026</p>'
-      +'</div>';
+  function fillLeft(p){
+    var m = msgs[p*2];
+    leftTxt.textContent  = m ? m.message : '';
+    leftAuth.textContent = m ? (m.guest_name||'') : '';
+    leftNum.textContent  = m ? (p*2+1) : '';
+  }
+  function fillRight(p){
+    var m = msgs[p*2+1];
+    rightTxt.textContent  = m ? m.message : '';
+    rightAuth.textContent = m ? (m.guest_name||'') : '';
+    rightNum.textContent  = m ? (p*2+2) : '';
+  }
+  function fillBack(p){
+    // Dorso muestra el mensaje izquierdo de la siguiente página
+    var m = msgs[p*2];
+    backTxt.textContent  = m ? m.message : '';
+    backAuth.textContent = m ? (m.guest_name||'') : '';
   }
 
   function updateUI(){
-    if(!pageFlip) return;
-    var cur = pageFlip.getCurrentPageIndex();
-    var total = pageFlip.getPageCount();
-    bookCt.textContent = 'página '+(cur+1)+' de '+total;
-    if(btnPrev) btnPrev.disabled = cur === 0;
-    if(btnNext) btnNext.disabled = false;
+    var tp = totalPages();
+    bookCt.textContent = 'página '+(page+1)+' de '+tp;
+    btnPrev.disabled = page === 0;
+    btnNext.disabled = false;
+  }
+
+  function fadeBook(out, cb){
+    // Fade a 0, ejecuta cb, fade a 1
+    book.style.transition = 'opacity '+FADE+'ms ease';
+    book.style.opacity = out ? '0' : '1';
+    setTimeout(cb, FADE);
+  }
+
+  function next(){
+    if(busy) return;
+    busy = true;
+    var tp = totalPages();
+    var isLast = page+1 >= tp;
+
+    if(!isLast){
+      // Dorso = mensaje izq de la siguiente página
+      fillBack(page+1);
+      // Voltear
+      bookRight.style.transition = 'transform '+FLIP+'ms cubic-bezier(.4,0,.2,1)';
+      bookRight.classList.add('flip');
+      setTimeout(function(){
+        // Fade out → reset invisible → fade in
+        fadeBook(true, function(){
+          page++;
+          bookRight.style.transition = 'none';
+          bookRight.classList.remove('flip');
+          fillLeft(page);
+          fillRight(page);
+          updateUI();
+          setTimeout(function(){
+            bookRight.style.transition = 'transform '+FLIP+'ms cubic-bezier(.4,0,.2,1)';
+          }, 30);
+          fadeBook(false, function(){ busy = false; });
+        });
+      }, FLIP);
+
+    } else {
+      // Última página — contraportada
+      backTxt.textContent = 'Sheccid · XV';
+      backAuth.textContent = '18 · XII · 2026';
+      // Ocultar página izquierda
+      bookLeft.style.visibility = 'hidden';
+      bookRight.style.transition = 'transform '+FLIP+'ms cubic-bezier(.4,0,.2,1)';
+      bookRight.classList.add('flip');
+      setTimeout(function(){
+        // Esperar 1.5s mostrando la contraportada
+        setTimeout(function(){
+          // Fade out → reset al inicio → fade in
+          fadeBook(true, function(){
+            page = 0;
+            bookRight.style.transition = 'none';
+            bookRight.classList.remove('flip');
+            bookLeft.style.visibility = '';
+            fillLeft(0);
+            fillRight(0);
+            updateUI();
+            setTimeout(function(){
+              bookRight.style.transition = 'transform '+FLIP+'ms cubic-bezier(.4,0,.2,1)';
+            }, 30);
+            fadeBook(false, function(){ busy = false; });
+          });
+        }, 1500);
+      }, FLIP);
+    }
+  }
+
+  function prev(){
+    if(busy || page === 0) return;
+    busy = true;
+    fadeBook(true, function(){
+      page--;
+      fillLeft(page);
+      fillRight(page);
+      updateUI();
+      fadeBook(false, function(){ busy = false; });
+    });
   }
 
   function startAuto(){
     clearInterval(autoTimer);
-    autoTimer = setInterval(function(){
-      if(!pageFlip) return;
-      var cur = pageFlip.getCurrentPageIndex();
-      var total = pageFlip.getPageCount();
-      if(cur >= total-1){
-        pageFlip.flip(0);
-      } else {
-        pageFlip.flipNext();
-      }
-    }, 8000);
-  }
-
-  function initBook(){
-    // Construir páginas HTML
-    var html = '';
-    for(var i=0;i<msgs.length;i++){
-      var m = msgs[i];
-      html += pageTpl(m.message, m.guest_name||'', (i+1));
-    }
-    html += endPageTpl();
-    container.innerHTML = html;
-
-    // Calcular dimensiones
-    var w = container.offsetWidth;
-    var h = 300;
-    var pw = Math.floor(w/2);
-
-    pageFlip = new St.PageFlip(container, {
-      width: pw,
-      height: h,
-      size: 'fixed',
-      minWidth: pw,
-      maxWidth: pw,
-      minHeight: h,
-      maxHeight: h,
-      showCover: false,
-      flippingTime: 900,
-      usePortrait: false,
-      startPage: 0,
-      drawShadow: true,
-      autoSize: false,
-      mobileScrollSupport: false
-    });
-
-    pageFlip.loadFromHTML(container.querySelectorAll('.book-page, .book-page-end'));
-
-    pageFlip.on('flip', function(){
-      updateUI();
-    });
-
-    updateUI();
-    startAuto();
+    autoTimer = setInterval(next, 8000);
   }
 
   function showEmpty(){
-    container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:300px;background:#fffcf8;border:1px solid rgba(197,148,170,.18);">'
-      +'<p style="font-family:Raleway,sans-serif;font-weight:200;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(197,148,170,.5);">Sé la primera en dejar un mensaje 🌸</p>'
-      +'</div>';
+    leftTxt.innerHTML = '<span class="book-empty">Sé la primera en<br>dejar un mensaje 🌸</span>';
+    leftAuth.textContent = '';
+    leftNum.textContent = '';
+    rightTxt.textContent = '';
+    rightAuth.textContent = '';
+    rightNum.textContent = '';
+    bookCt.textContent = '';
     if(btnPrev) btnPrev.style.display='none';
     if(btnNext) btnNext.style.display='none';
-    if(bookCt) bookCt.textContent='';
   }
 
-  if(btnPrev) btnPrev.addEventListener('click', function(){
-    clearInterval(autoTimer);
-    if(pageFlip) pageFlip.flipPrev();
-    startAuto();
-  });
-  if(btnNext) btnNext.addEventListener('click', function(){
-    clearInterval(autoTimer);
-    if(pageFlip) pageFlip.flipNext();
-    startAuto();
+  if(btnPrev) btnPrev.addEventListener('click', function(){ clearInterval(autoTimer); prev(); startAuto(); });
+  if(btnNext) btnNext.addEventListener('click', function(){ clearInterval(autoTimer); next(); startAuto(); });
+
+  // Swipe
+  var tx=0;
+  bookRight.addEventListener('touchstart',function(e){ tx=e.touches[0].clientX; },{passive:true});
+  bookRight.addEventListener('touchend',function(e){
+    var dx=tx-e.changedTouches[0].clientX;
+    if(Math.abs(dx)>40){ clearInterval(autoTimer); dx>0?next():prev(); startAuto(); }
   });
 
   fetch(SUPABASE_URL+'/rest/v1/rsvps?select=guest_name,message&message=neq.&order=created_at.asc',{
@@ -1880,14 +1942,14 @@ function enviarFirma(){
   })
   .then(function(r){ return r.json(); })
   .then(function(data){
-    var filtered = (data||[]).filter(function(d){ return d.message&&d.message.trim().length>0; });
+    var filtered=(data||[]).filter(function(d){ return d.message&&d.message.trim().length>0; });
     if(filtered.length===0){ showEmpty(); return; }
     msgs = shuffle(filtered);
-    initBook();
+    fillLeft(0); fillRight(0); updateUI();
+    startAuto();
   })
   .catch(function(){ showEmpty(); });
-})();
-function addToCalendar(){
+})();function addToCalendar(){
   const title  = encodeURIComponent('XV Años de Sheccid');
   const loc    = encodeURIComponent('Salón Krystal, San Francisco Coacalco, Estado de México');
   const details= encodeURIComponent('Recepción de los XV años de Sheccid');
