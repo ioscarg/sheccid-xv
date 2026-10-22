@@ -969,47 +969,52 @@ footer p{color:#2a0d18 !important;opacity:.8;font-weight:400 !important;}
 .photos .eyebrow{color:var(--accent);}
 .photos .sec-title{color:var(--ink);}
 
-/* Carrusel Tiras Diagonales */
+/* Carrusel 3D — Marco adaptivo */
 .c3d-wrap{
-  position:relative;margin-top:28px;
+  position:relative;height:320px;perspective:900px;
+  margin-top:28px;overflow:visible;
+}
+/* Ajuste de altura según orientación de la foto activa */
+.c3d-wrap.horiz{ height:220px; }
+.c3d-wrap.sq{ height:270px; }
+
+/* Base item */
+.c3d-item{
+  position:absolute;top:50%;
+  border-radius:14px;
+  background-size:cover;background-position:center center;
   cursor:pointer;
-}
-/* Marco adaptivo: vertical / horizontal / cuadrado */
-.c3d-wrap.vert{ height:260px; }
-.c3d-wrap.horiz{ height:180px; }
-.c3d-wrap.sq{ height:220px; }
-
-.diag-frame{
-  position:relative;width:92%;margin:0 auto;
-  border-radius:14px;overflow:hidden;
-  background:#2a0d18;
-  box-shadow:0 12px 36px rgba(61,26,38,.28);
+  transition:all .55s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 4px 16px rgba(61,26,38,.15);
   -webkit-user-select:none;user-select:none;
   -webkit-touch-callout:none;
 }
-.c3d-wrap.vert  .diag-frame{ height:260px; }
-.c3d-wrap.horiz .diag-frame{ height:180px; }
-.c3d-wrap.sq    .diag-frame{ height:220px; }
+/* Vertical */
+.c3d-item.vert{width:52%;height:290px;margin-top:-145px;}
+/* Horizontal */
+.c3d-item.horiz{width:72%;height:185px;margin-top:-92px;}
+/* Cuadrado */
+.c3d-item.sq{width:60%;height:230px;margin-top:-115px;}
 
-/* Cada tira diagonal */
-.diag-strip{
-  position:absolute;top:-15%;height:130%;
-  overflow:hidden;
-  transform:skewX(-10deg);
-  transition:opacity .35s, transform .35s cubic-bezier(.4,0,.2,1);
+/* Activa */
+.c3d-item.active{
+  left:50%;transform:translateX(-50%) translateY(0) scale(1);
+  z-index:3;box-shadow:0 14px 40px rgba(61,26,38,.30);
 }
-/* Inner contrarresta el skew para mostrar la foto correctamente */
-.diag-inner{
-  position:absolute;top:0;left:0;width:100%;height:100%;
-  background-size:cover;
-  background-position:center center;
-  transform:skewX(10deg) scale(1.08);
-  -webkit-user-select:none;user-select:none;
-  -webkit-touch-callout:none;
+/* Anterior */
+.c3d-item.prev{
+  left:0%;transform:translateY(0) rotateY(32deg) scale(.74);
+  z-index:1;opacity:.58;
 }
+/* Siguiente */
+.c3d-item.next{
+  right:0%;transform:translateY(0) rotateY(-32deg) scale(.74);
+  z-index:1;opacity:.58;
+}
+.c3d-item.hidden{opacity:0;pointer-events:none;z-index:0;}
 
-/* Nav lateral (flechas a los lados del frame) */
-.c3d-nav{display:flex;justify-content:center;gap:16px;margin-top:14px;}
+/* Nav */
+.c3d-nav{display:flex;justify-content:center;gap:16px;margin-top:16px;}
 .c3d-nav-btn{
   background:rgba(255,255,255,.6);
   border:1px solid rgba(197,148,170,.35);
@@ -2055,7 +2060,7 @@ document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preven
   upd();
 })();
 
-// -- CARRUSEL TIRAS DIAGONALES --
+// -- CARRUSEL 3D FOTOS (Marco Adaptivo) --
 (function(){
   var photos=[
     'assets/photos/photo-01.jpg',
@@ -2066,8 +2071,8 @@ document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preven
     'assets/photos/photo-06.jpg',
     'assets/photos/photo-07.jpg'
   ];
-  var N=7; // número de tiras
-  var total=photos.length, cur=0, timer=null, animating=false;
+  var orientations=new Array(photos.length).fill('vert');
+  var total=photos.length, cur=0, timer=null;
   var wrap=document.getElementById('c3d-wrap');
   var btnPrev=document.getElementById('c3d-prev');
   var btnNext=document.getElementById('c3d-next');
@@ -2080,126 +2085,74 @@ document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preven
   var lbCur=0;
   if(!wrap) return;
 
-  // Crear frame con tiras
-  var frame=document.createElement('div');
-  frame.className='diag-frame';
-  wrap.appendChild(frame);
-
-  var strips=[];
-  for(var i=0;i<N;i++){
-    var s=document.createElement('div');
-    s.className='diag-strip';
-    var pct=100/N;
-    var leftPct=i*pct - 6;
-    s.style.left=leftPct+'%';
-    s.style.width=(pct+10)+'%';
-    var inner=document.createElement('div');
-    inner.className='diag-inner';
-    // backgroundPosition corrige el offset de cada tira
-    inner.style.backgroundPosition=(i/(N-1)*100)+'% center';
-    s.appendChild(inner);
-    frame.appendChild(s);
-    strips.push({el:s, inner:inner});
-  }
-
-  // Detectar orientación y ajustar altura
-  var orientations=new Array(total).fill('vert');
+  var items=[];
   photos.forEach(function(src,i){
+    var el=document.createElement('div');
+    el.className='c3d-item hidden vert';
+    el.style.backgroundImage="url('"+src+"')";
+    el.setAttribute('data-index',i);
+    wrap.appendChild(el);
+    items.push(el);
     var img=new Image();
     img.onload=function(){
-      var r=img.naturalWidth/img.naturalHeight;
-      orientations[i]=r>1.15?'horiz':r<0.87?'vert':'sq';
-      if(i===cur) applyOrientation();
+      var ratio=img.naturalWidth/img.naturalHeight;
+      if(ratio>1.15) orientations[i]='horiz';
+      else if(ratio<0.87) orientations[i]='vert';
+      else orientations[i]='sq';
+      render();
     };
     img.src=src;
   });
 
-  function applyOrientation(){
-    wrap.className='c3d-wrap '+orientations[cur];
+  function getPos(i){
+    var diff=(i-cur+total)%total;
+    if(diff===0) return 'active';
+    if(diff===1) return 'next';
+    if(diff===total-1) return 'prev';
+    return 'hidden';
   }
 
-  // Mostrar foto sin animación (inicial)
-  function showImmediate(idx){
-    strips.forEach(function(s){
-      s.inner.style.backgroundImage="url('"+photos[idx]+"')";
-      s.el.style.opacity='1';
-      s.el.style.transform='skewX(-10deg) translateY(0)';
+  function render(){
+    items.forEach(function(el,i){
+      el.className='c3d-item '+orientations[i]+' '+getPos(i);
     });
-    applyOrientation();
+    // Ajustar altura del wrap según orientación de la activa
+    wrap.className='c3d-wrap '+(orientations[cur]!=='vert'?orientations[cur]:'');
   }
 
-  // Transición: tiras se revelan de izq a der
-  function transitionTo(idx, dir){
-    if(animating) return;
-    animating=true;
-    var oldIdx=cur;
-    cur=idx;
-    applyOrientation();
-
-    // Ocultar tiras escalonado izq→der
-    strips.forEach(function(s,i){
-      var delay=i*45;
-      setTimeout(function(){
-        s.el.style.transition='opacity .3s ease, transform .3s ease';
-        s.el.style.opacity='0';
-        s.el.style.transform='skewX(-10deg) translateY('+(dir>=0?'-':'')+' 18px)';
-      }, delay);
-    });
-
-    var hideTotal=N*45+300;
-    setTimeout(function(){
-      // Cambiar imagen en todas las tiras
-      strips.forEach(function(s){
-        s.inner.style.backgroundImage="url('"+photos[cur]+"')";
-        s.el.style.transition='none';
-        s.el.style.transform='skewX(-10deg) translateY('+(dir>=0?'':'-')+' 18px)';
-      });
-      // Revelar tiras escalonado izq→der
-      setTimeout(function(){
-        strips.forEach(function(s,i){
-          var delay=i*50;
-          setTimeout(function(){
-            s.el.style.transition='opacity .4s cubic-bezier(.4,0,.2,1), transform .4s cubic-bezier(.4,0,.2,1)';
-            s.el.style.opacity='1';
-            s.el.style.transform='skewX(-10deg) translateY(0)';
-          }, delay);
-        });
-        setTimeout(function(){ animating=false; }, N*50+400);
-      }, 40);
-    }, hideTotal);
-  }
-
-  function goTo(n, dir){
-    var next=(n+total)%total;
-    if(next===cur||animating) return;
-    transitionTo(next, dir===undefined?(next>cur?1:-1):dir);
-    resetAuto();
+  function goTo(n){
+    cur=(n+total)%total;
+    render();
   }
 
   function resetAuto(){
     clearInterval(timer);
-    timer=setInterval(function(){ goTo(cur+1, 1); }, 4500);
+    timer=setInterval(function(){goTo(cur+1);},4500);
   }
 
-  // Click en frame → lightbox
-  frame.addEventListener('click',function(){
-    if(!animating) lbOpen(cur);
+  // Click en items
+  items.forEach(function(el,i){
+    el.addEventListener('click',function(){
+      var pos=getPos(i);
+      if(pos==='active'){ lbOpen(i); }
+      else if(pos==='prev'||pos==='next'){ clearInterval(timer); goTo(i); resetAuto(); }
+    });
   });
 
-  // Bloquear long-press
-  frame.addEventListener('contextmenu',function(e){e.preventDefault();return false;});
-  if(lbOverlay) lbOverlay.addEventListener('contextmenu',function(e){e.preventDefault();return false;});
-
   // Nav botones
-  if(btnPrev) btnPrev.addEventListener('click',function(){ goTo(cur-1,-1); });
-  if(btnNext) btnNext.addEventListener('click',function(){ goTo(cur+1, 1); });
+  if(btnPrev) btnPrev.addEventListener('click',function(){clearInterval(timer);goTo(cur-1);resetAuto();});
+  if(btnNext) btnNext.addEventListener('click',function(){clearInterval(timer);goTo(cur+1);resetAuto();});
+
+  // Bloquear long-press
+  wrap.addEventListener('contextmenu',function(e){e.preventDefault();return false;});
+  if(lbOverlay) lbOverlay.addEventListener('contextmenu',function(e){e.preventDefault();return false;});
 
   // Swipe
   var tx=0;
   wrap.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;},{passive:true});
   wrap.addEventListener('touchend',function(e){
     var dx=tx-e.changedTouches[0].clientX;
-    if(Math.abs(dx)>40){ clearInterval(timer); dx>0?goTo(cur+1,1):goTo(cur-1,-1); }
+    if(Math.abs(dx)>40){clearInterval(timer);dx>0?goTo(cur+1):goTo(cur-1);resetAuto();}
   });
 
   // Lightbox
@@ -2219,7 +2172,7 @@ document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preven
   if(lbPrev) lbPrev.addEventListener('click',function(){lbNav(-1);});
   if(lbNext) lbNext.addEventListener('click',function(){lbNav(1);});
 
-  showImmediate(0);
+  render();
   resetAuto();
 })();
 
