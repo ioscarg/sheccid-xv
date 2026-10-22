@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#3d1a26">
 <title>Panel de Invitados · Sheccid XV</title>
@@ -12,7 +12,6 @@
 :root{
   --dark:#3d1a26;
   --darker:#2a0d18;
-  --rose:#d4a5b0;
   --blush:#fdf1f1;
   --white:#ffffff;
   --accent:#c594aa;
@@ -31,7 +30,7 @@ header{display:flex;justify-content:space-between;align-items:center;gap:12px;pa
 .titulo .nombre{font-family:'Great Vibes',cursive;font-size:34px;color:var(--white)}
 .titulo .sub{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--on-dark2);margin-top:6px}
 
-main{max-width:720px;margin:28px auto;padding:0 18px}
+main{max-width:720px;margin:28px auto;padding:0 18px 40px}
 
 .card{background:var(--white);border:1px solid var(--line);border-radius:4px;padding:22px;margin-bottom:18px}
 
@@ -55,7 +54,14 @@ button.danger:hover{background:rgba(139,42,60,.06)}
 .muted{color:var(--ink2);font-size:13px}
 .etiqueta{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
 
-/* Lista compacta */
+/* Pestañas: arriba en escritorio, barra inferior tipo app en celular */
+.tabs-top{display:flex;gap:8px;margin-bottom:18px}
+.tabs-top button{flex:1;padding:12px 10px}
+.tabs-top button.active{background:var(--darker);border-color:var(--darker);color:var(--white)}
+
+.tabs-bottom{display:none}
+
+/* Lista compacta de invitados */
 #buscar{margin-bottom:14px}
 .lista{border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--white)}
 .fila{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;padding:15px 18px;border:none;border-bottom:1px solid var(--line);border-radius:0;background:var(--white);text-align:left;color:var(--ink);text-transform:none;letter-spacing:0;font-family:'Cinzel',serif;font-size:15px;font-weight:400}
@@ -64,10 +70,18 @@ button.danger:hover{background:rgba(139,42,60,.06)}
 .fila:last-child{border-bottom:none}
 .fila .boletos{font-family:'Raleway',sans-serif;font-weight:300;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);white-space:nowrap}
 
+/* Mensajes de la invitación */
+.mensajes{display:grid;gap:12px}
+.msj{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:4px;padding:14px 16px;background:var(--white)}
+.msj-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+.msj-nombre{font-family:'Cinzel',serif;font-size:15px;color:var(--ink)}
+.msj-fecha{font-size:11px;letter-spacing:.06em;color:var(--ink2);white-space:nowrap}
+.msj-texto{font-size:15px;line-height:1.5;color:var(--ink);white-space:pre-wrap;word-break:break-word}
+
 /* Ficha del invitado */
-.overlay{position:fixed;inset:0;background:rgba(61,26,38,.55);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+.overlay{position:fixed;inset:0;background:rgba(61,26,38,.55);display:flex;align-items:flex-end;justify-content:center;z-index:50}
 .overlay[hidden]{display:none}
-.sheet{background:var(--white);width:100%;max-width:420px;border-radius:14px 14px 0 0;border-top:3px solid var(--accent);padding:24px 22px 22px;display:grid;gap:10px}
+.sheet{background:var(--white);width:100%;max-width:420px;border-radius:14px 14px 0 0;border-top:3px solid var(--accent);padding:24px 22px calc(22px + env(safe-area-inset-bottom));display:grid;gap:10px}
 .sheet h2{font-family:'Cinzel',serif;font-weight:400;font-size:20px;color:var(--ink);text-align:center}
 .sheet .detalle{text-align:center;margin:0 0 8px}
 .sheet button{width:100%;padding:13px;text-align:center}
@@ -76,11 +90,19 @@ button.danger:hover{background:rgba(139,42,60,.06)}
 @media (max-width:700px){
   header{padding:14px 18px}
   .titulo .nombre{font-size:28px}
-  main{margin:18px auto;padding:0 12px}
+  main{margin:18px auto;padding:0 12px 110px}
   .card{padding:16px}
   .row{gap:8px}
   .row input,.row button{width:100%;flex:1 1 100%}
   #fBoletos{width:100%!important}
+  .tabs-top{display:none}
+  .tabs-bottom{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--white);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 16px rgba(61,26,38,.06)}
+  .tabs-bottom button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 9px;border:none;border-radius:0;background:transparent;color:var(--ink2);font-size:10px;letter-spacing:.1em}
+  .tabs-bottom button:hover{background:transparent}
+  .tabs-bottom button.active{color:var(--dark)}
+  .tabs-bottom button.active svg{stroke:var(--dark)}
+  .tabs-bottom button.active span{font-weight:400}
+  .tabs-bottom svg{width:22px;height:22px;fill:none;stroke:var(--ink2);stroke-width:1.6}
 }
 </style>
 </head>
@@ -103,25 +125,58 @@ button.danger:hover{background:rgba(139,42,60,.06)}
   </section>
 
   <section id="panel" hidden>
-    <div class="card">
-      <form id="form" class="row">
-        <input id="fNombre" placeholder="Nombre (ej. Familia García)" required style="flex:2;min-width:200px">
-        <input id="fBoletos" type="number" min="1" max="20" value="2" required style="width:110px">
-        <button class="primary" type="submit" id="btnGuardar">Agregar invitado</button>
-        <button type="button" id="btnCancelar" hidden>Cancelar</button>
-      </form>
-      <div id="msg" class="msg"></div>
+    <nav class="tabs-top">
+      <button data-tab="invitados" class="active">Invitados</button>
+      <button data-tab="mensajes">Mensajes</button>
+    </nav>
+
+    <!-- Pestaña: Invitados -->
+    <div id="vista-invitados">
+      <div class="card">
+        <form id="form" class="row">
+          <input id="fNombre" placeholder="Nombre (ej. Familia García)" required style="flex:2;min-width:200px">
+          <input id="fBoletos" type="number" min="1" max="20" value="2" required style="width:110px">
+          <button class="primary" type="submit" id="btnGuardar">Agregar invitado</button>
+          <button type="button" id="btnCancelar" hidden>Cancelar</button>
+        </form>
+        <div id="msg" class="msg"></div>
+      </div>
+
+      <div class="card" style="padding:16px">
+        <div class="row" style="justify-content:space-between;margin-bottom:14px">
+          <span id="resumen" class="etiqueta"></span>
+          <button id="btnExportInv">Exportar CSV</button>
+        </div>
+        <input id="buscar" placeholder="Buscar por nombre…" autocomplete="off">
+        <div id="lista" class="lista"></div>
+      </div>
     </div>
 
-    <div class="card" style="padding:16px">
-      <div class="row" style="justify-content:space-between;margin-bottom:14px">
-        <span id="resumen" class="etiqueta"></span>
+    <!-- Pestaña: Mensajes (solo lectura) -->
+    <div id="vista-mensajes" hidden>
+      <div class="card" style="padding:16px">
+        <div class="row" style="justify-content:space-between;margin-bottom:14px">
+          <span id="resumenMsj" class="etiqueta"></span>
+          <button id="btnExportMsj">Exportar CSV</button>
+        </div>
+        <p id="msgMsj" class="msg" style="margin:0 0 12px"></p>
+        <div id="listaMsj" class="mensajes"></div>
       </div>
-      <input id="buscar" placeholder="Buscar por nombre…" autocomplete="off">
-      <div id="lista" class="lista"></div>
     </div>
   </section>
 </main>
+
+<!-- Barra inferior (solo celular) -->
+<nav class="tabs-bottom" id="tabsBottom" hidden>
+  <button data-tab="invitados" class="active">
+    <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.6c2.7.2 4.6 1.9 5 4.4"/></svg>
+    <span>Invitados</span>
+  </button>
+  <button data-tab="mensajes">
+    <svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4V5z"/></svg>
+    <span>Mensajes</span>
+  </button>
+</nav>
 
 <!-- Ficha del invitado -->
 <div id="modal" class="overlay" hidden>
@@ -144,6 +199,7 @@ const API = '/api/invitados';
 
 const $ = id => document.getElementById(id);
 let invitados = [];
+let mensajes = [];
 let editandoId = null;
 let seleccionadoId = null;
 let pass = sessionStorage.getItem('panelPass') || '';
@@ -153,6 +209,9 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
 const linkDe = token => `${BASE}?token=${encodeURIComponent(token)}`;
 const buscarInv = id => invitados.find(x => x.id === id);
 const etiquetaBoletos = n => `${n} ${n === 1 ? 'boleto' : 'boletos'}`;
+const fmtFecha = s => new Date(s).toLocaleString('es-MX', {
+  day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+});
 
 function mostrarMsg(texto, esError = true) {
   $('msg').textContent = texto;
@@ -174,8 +233,21 @@ async function llamar(body) {
 function mostrarPanel(activo) {
   $('login').hidden = activo;
   $('panel').hidden = !activo;
+  $('tabsBottom').hidden = !activo;
   $('btnSalir').hidden = !activo;
+  if (activo) cambiarTab('invitados');
 }
+
+// ===== PESTAÑAS =====
+function cambiarTab(tab) {
+  document.querySelectorAll('[data-tab]').forEach(b =>
+    b.classList.toggle('active', b.dataset.tab === tab));
+  $('vista-invitados').hidden = tab !== 'invitados';
+  $('vista-mensajes').hidden = tab !== 'mensajes';
+  if (tab === 'mensajes') cargarMensajes();
+}
+document.querySelectorAll('[data-tab]').forEach(b =>
+  b.addEventListener('click', () => cambiarTab(b.dataset.tab)));
 
 // ===== ACCESO =====
 $('formLogin').onsubmit = async e => {
@@ -197,6 +269,7 @@ $('btnSalir').onclick = () => {
   sessionStorage.removeItem('panelPass');
   pass = '';
   invitados = [];
+  mensajes = [];
   cerrar();
   mostrarPanel(false);
 };
@@ -223,7 +296,7 @@ async function cargar() {
   mostrarPanel(false);
 })();
 
-// ===== LISTA Y BÚSQUEDA =====
+// ===== LISTA Y BÚSQUEDA DE INVITADOS =====
 function render() {
   const q = $('buscar').value.trim().toLowerCase();
   // Sin texto (o al borrarlo) se muestran todos
@@ -242,6 +315,62 @@ function render() {
 }
 
 $('buscar').addEventListener('input', render);
+
+// ===== MENSAJES DE LA INVITACIÓN (solo lectura) =====
+async function cargarMensajes() {
+  $('msgMsj').textContent = '';
+  try {
+    mensajes = await llamar({ action: 'list_rsvps' });
+    renderMensajes();
+  } catch (err) {
+    $('msgMsj').textContent = err.message;
+  }
+}
+
+function renderMensajes() {
+  $('resumenMsj').textContent = `${mensajes.length} ${mensajes.length === 1 ? 'mensaje' : 'mensajes'}`;
+  $('listaMsj').innerHTML = mensajes.map(m => `
+    <article class="msj">
+      <div class="msj-head">
+        <span class="msj-nombre">${esc(m.guest_name)}</span>
+        <span class="msj-fecha">${esc(fmtFecha(m.created_at))}</span>
+      </div>
+      <p class="msj-texto">${esc(m.message)}</p>
+    </article>`).join('')
+    || `<p class="muted" style="padding:18px;text-align:center">Aún no hay mensajes</p>`;
+}
+
+// ===== EXPORTAR CSV =====
+function descargarCSV(nombreArchivo, filas) {
+  // BOM para que Excel respete los acentos
+  const csv = filas
+    .map(f => f.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(','))
+    .join('\r\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nombreArchivo;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+$('btnExportInv').onclick = () => {
+  const filas = [
+    ['Nombre', 'Boletos', 'Link'],
+    ...invitados.map(i => [i.nombre_corto, i.boletos, linkDe(i.token)]),
+  ];
+  descargarCSV('invitados-sheccid-xv.csv', filas);
+};
+
+$('btnExportMsj').onclick = () => {
+  if (!mensajes.length) return;
+  const filas = [
+    ['Nombre escrito', 'Mensaje', 'Fecha'],
+    ...mensajes.map(m => [m.guest_name, m.message, fmtFecha(m.created_at)]),
+  ];
+  descargarCSV('mensajes-sheccid-xv.csv', filas);
+};
 
 // ===== FICHA DEL INVITADO =====
 function abrir(id) {
