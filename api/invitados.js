@@ -93,6 +93,11 @@ module.exports = async (req, res) => {
         });
         return res.json({ ok: true });
       }
+      case 'list_rsvps': {
+        // Solo lectura: mensajes que dejan los invitados en la invitación
+        const datos = await sb('rsvps?select=id,guest_name,message,created_at&order=created_at.desc');
+        return res.json(datos);
+      }
       default:
         return res.status(400).json({ error: 'Acción inválida' });
     }
