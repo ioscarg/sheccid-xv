@@ -1,48 +1,83 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#3d1a26">
 <title>Panel de Invitados · Sheccid XV</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Raleway:wght@200;300;400&family=Great+Vibes&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#FAFAF6;--ink:#3A2F2A;--muted:#8A7A70;--accent:#AE9A8A;--accent-d:#7E6A5A;--line:#E4DCD6;--danger:#A65A4E;--ok:#4F7A5E}
-*{box-sizing:border-box}
-body{margin:0;font-family:Jost,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid var(--line);background:#fff}
-h1{font-family:"Playfair Display",Georgia,serif;font-weight:500;font-size:22px;margin:0}
-main{max-width:720px;margin:24px auto;padding:0 16px}
-.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:20px;margin-bottom:16px}
-input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;width:100%}
-button{font:inherit;padding:8px 12px;border-radius:8px;border:1px solid var(--accent);background:#fff;color:var(--accent-d);cursor:pointer;white-space:nowrap}
-button.primary{background:var(--accent);color:#fff}
-button.danger{border-color:var(--danger);color:var(--danger)}
-button:disabled{opacity:.5;cursor:default}
+/* Paleta tomada de la invitación */
+:root{
+  --dark:#3d1a26;
+  --darker:#2a0d18;
+  --rose:#d4a5b0;
+  --blush:#fdf1f1;
+  --white:#ffffff;
+  --accent:#c594aa;
+  --ink:#3d1a26;
+  --ink2:#9a6070;
+  --on-dark2:#f9d6d5;
+  --line:rgba(197,148,170,.35);
+  --error:#8b2a3c;
+}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Raleway',sans-serif;font-weight:300;background:var(--blush);color:var(--ink);min-height:100vh}
+
+/* Encabezado */
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 28px;background:var(--dark);color:var(--white)}
+.titulo{display:flex;flex-direction:column;line-height:1}
+.titulo .nombre{font-family:'Great Vibes',cursive;font-size:34px;color:var(--white)}
+.titulo .sub{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--on-dark2);margin-top:6px}
+
+main{max-width:720px;margin:28px auto;padding:0 18px}
+
+.card{background:var(--white);border:1px solid var(--line);border-radius:4px;padding:22px;margin-bottom:18px}
+
+/* Campos */
+input{font:inherit;font-size:14px;padding:11px 14px;border:1px solid var(--line);border-radius:4px;width:100%;background:var(--white);color:var(--ink);outline:none;transition:border-color .2s}
+input::placeholder{color:var(--ink2);opacity:.7}
+input:focus{border-color:var(--accent)}
+
+/* Botones */
+button{font-family:'Raleway',sans-serif;font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:10px 16px;border-radius:4px;border:1px solid var(--accent);background:transparent;color:var(--ink);cursor:pointer;white-space:nowrap;transition:background .2s,border-color .2s}
+button:hover{background:rgba(197,148,170,.12)}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.45;cursor:default}
+button.primary{background:var(--darker);border-color:var(--darker);color:var(--white)}
+button.primary:hover{background:var(--dark)}
+button.danger{border-color:var(--error);color:var(--error)}
+button.danger:hover{background:rgba(139,42,60,.06)}
+
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.msg{margin-top:12px;font-size:14px;color:var(--danger);min-height:1em}
-.muted{color:var(--muted);font-size:14px}
+.msg{margin-top:12px;font-size:13px;color:var(--error);min-height:1em}
+.muted{color:var(--ink2);font-size:13px}
+.etiqueta{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
 
-/* Lista compacta: una línea por invitado */
-#buscar{margin-bottom:12px}
-.lista{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
-.fila{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;padding:14px 16px;border:none;border-bottom:1px solid var(--line);border-radius:0;background:#fff;text-align:left;color:var(--ink);font-size:16px}
+/* Lista compacta */
+#buscar{margin-bottom:14px}
+.lista{border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--white)}
+.fila{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;padding:15px 18px;border:none;border-bottom:1px solid var(--line);border-radius:0;background:var(--white);text-align:left;color:var(--ink);text-transform:none;letter-spacing:0;font-family:'Cinzel',serif;font-size:15px;font-weight:400}
+.fila:hover{background:rgba(197,148,170,.08)}
+.fila:active{background:rgba(197,148,170,.16);transform:none}
 .fila:last-child{border-bottom:none}
-.fila:active{background:#F5F0EC}
-.fila .boletos{font-size:13px;color:var(--muted);white-space:nowrap}
+.fila .boletos{font-family:'Raleway',sans-serif;font-weight:300;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);white-space:nowrap}
 
-/* Ficha del invitado (sheet) */
-.overlay{position:fixed;inset:0;background:rgba(58,47,42,.35);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+/* Ficha del invitado */
+.overlay{position:fixed;inset:0;background:rgba(61,26,38,.55);display:flex;align-items:flex-end;justify-content:center;z-index:10}
 .overlay[hidden]{display:none}
-.sheet{background:#fff;width:100%;max-width:420px;border-radius:16px 16px 0 0;padding:20px;display:grid;gap:10px}
-.sheet h2{font-family:"Playfair Display",Georgia,serif;font-weight:500;font-size:20px;margin:0}
-.sheet button{width:100%;padding:12px;text-align:center}
-@media (min-width:701px){.overlay{align-items:center}.sheet{border-radius:16px}}
+.sheet{background:var(--white);width:100%;max-width:420px;border-radius:14px 14px 0 0;border-top:3px solid var(--accent);padding:24px 22px 22px;display:grid;gap:10px}
+.sheet h2{font-family:'Cinzel',serif;font-weight:400;font-size:20px;color:var(--ink);text-align:center}
+.sheet .detalle{text-align:center;margin:0 0 8px}
+.sheet button{width:100%;padding:13px;text-align:center}
+@media (min-width:701px){.overlay{align-items:center}.sheet{border-radius:4px;border:1px solid var(--line);border-top:3px solid var(--accent)}}
 
 @media (max-width:700px){
-  header{padding:12px 16px}
-  h1{font-size:18px}
-  main{margin:16px auto;padding:0 12px}
-  .card{padding:14px}
+  header{padding:14px 18px}
+  .titulo .nombre{font-size:28px}
+  main{margin:18px auto;padding:0 12px}
+  .card{padding:16px}
   .row{gap:8px}
   .row input,.row button{width:100%;flex:1 1 100%}
   #fBoletos{width:100%!important}
@@ -51,8 +86,11 @@ button:disabled{opacity:.5;cursor:default}
 </head>
 <body>
 <header>
-  <h1>Invitados · Sheccid XV</h1>
-  <button id="btnSalir" hidden>Salir</button>
+  <div class="titulo">
+    <span class="nombre">Sheccid</span>
+    <span class="sub">Panel de invitados</span>
+  </div>
+  <button id="btnSalir" hidden style="border-color:rgba(249,214,213,.5);color:var(--on-dark2)">Salir</button>
 </header>
 
 <main>
@@ -75,9 +113,9 @@ button:disabled{opacity:.5;cursor:default}
       <div id="msg" class="msg"></div>
     </div>
 
-    <div class="card" style="padding:14px">
-      <div class="row" style="justify-content:space-between;margin-bottom:12px">
-        <strong id="resumen"></strong>
+    <div class="card" style="padding:16px">
+      <div class="row" style="justify-content:space-between;margin-bottom:14px">
+        <span id="resumen" class="etiqueta"></span>
       </div>
       <input id="buscar" placeholder="Buscar por nombre…" autocomplete="off">
       <div id="lista" class="lista"></div>
@@ -89,7 +127,7 @@ button:disabled{opacity:.5;cursor:default}
 <div id="modal" class="overlay" hidden>
   <div class="sheet" role="dialog" aria-modal="true">
     <h2 id="mNombre"></h2>
-    <p id="mBoletos" class="muted" style="margin:0 0 6px"></p>
+    <p id="mBoletos" class="muted detalle"></p>
     <button onclick="accion(copiar)">Copiar link</button>
     <button onclick="accion(whatsapp)">Enviar por WhatsApp</button>
     <button onclick="accion(editar)">Editar</button>
@@ -98,7 +136,6 @@ button:disabled{opacity:.5;cursor:default}
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ===== CONFIGURACIÓN =====
 const BASE = 'https://sheccid-xv.vercel.app/';
@@ -119,7 +156,7 @@ const etiquetaBoletos = n => `${n} ${n === 1 ? 'boleto' : 'boletos'}`;
 
 function mostrarMsg(texto, esError = true) {
   $('msg').textContent = texto;
-  $('msg').style.color = esError ? 'var(--danger)' : 'var(--ok)';
+  $('msg').style.color = esError ? 'var(--error)' : 'var(--dark)';
 }
 
 // Todas las operaciones pasan por la función de Vercel
@@ -201,7 +238,7 @@ function render() {
       <span>${esc(i.nombre_corto)}</span>
       <span class="boletos">${esc(etiquetaBoletos(i.boletos))}</span>
     </button>`).join('')
-    || `<p class="muted" style="padding:16px;margin:0">Sin resultados</p>`;
+    || `<p class="muted" style="padding:18px;text-align:center">Sin resultados</p>`;
 }
 
 $('buscar').addEventListener('input', render);
