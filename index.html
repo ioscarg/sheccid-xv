@@ -366,16 +366,16 @@ section.instagram{
 }
 .parent-col{padding:0 24px;text-align:center;}
 .parent-label{
-  font-family:'Raleway',sans-serif;font-weight:200;font-size:9px;
-  letter-spacing:.22em;color:var(--accent);text-transform:uppercase;
+  font-family:'Cinzel',serif;font-weight:400;font-size:11px;
+  letter-spacing:.18em;color:var(--ink2);text-transform:uppercase;
   margin-bottom:14px;display:block;
 }
 .parent-name{font-family:'Cinzel',serif;font-size:14px;color:var(--ink);line-height:1.55;letter-spacing:.04em;}
 .padrinos{max-width:380px;margin:44px auto 0;text-align:center;}
 .padrinos-rule{height:1px;background:linear-gradient(to right,transparent,var(--sep),transparent);margin-bottom:28px;}
 .padrinos-eyebrow{
-  font-family:'Raleway',sans-serif;font-weight:200;font-size:9px;
-  letter-spacing:.2em;text-transform:uppercase;color:var(--accent);
+  font-family:'Cinzel',serif;font-weight:400;font-size:11px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--ink2);
   display:block;margin-bottom:22px;
 }
 .padrino-pair{margin-bottom:18px;}
@@ -893,9 +893,9 @@ footer p+p{margin-top:6px;}
 .firma-ok p{color:var(--ink2);}
 
 /* ── FONDO BLUSH (#fdf1f1): Papás, Lugar, Cierre ── */
-.parent-label{color:var(--accent);}
+.parent-label{color:var(--ink2);}
 .parent-name{color:var(--ink);}
-.padrinos-eyebrow{color:var(--accent);}
+.padrinos-eyebrow{color:var(--ink2);}
 .padrino-name,.padrino-sub{color:var(--ink);}
 .closing-v1,.closing-v2,.closing-v3{color:var(--ink);}
 .closing-firma{color:var(--ink2);}
@@ -1045,14 +1045,11 @@ footer p{color:#2a0d18 !important;opacity:.8;font-weight:400 !important;}
 .photos .eyebrow{color:var(--accent);}
 .photos .sec-title{color:var(--ink);}
 
-/* Carrusel 3D — Marco adaptivo */
+/* Carrusel 3D — altura fija, no se mueve con la orientación de la foto */
 .c3d-wrap{
   position:relative;height:320px;perspective:900px;
-  margin-top:28px;overflow:visible;
+  margin-top:28px;overflow:hidden;
 }
-/* Ajuste de altura según orientación de la foto activa */
-.c3d-wrap.horiz{ height:220px; }
-.c3d-wrap.sq{ height:270px; }
 
 /* Base item */
 .c3d-item{
@@ -2209,8 +2206,7 @@ document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preven
     items.forEach(function(el,i){
       el.className='c3d-item '+orientations[i]+' '+getPos(i);
     });
-    // Ajustar altura del wrap según orientación de la activa
-    wrap.className='c3d-wrap '+(orientations[cur]!=='vert'?orientations[cur]:'');
+    wrap.className='c3d-wrap';
   }
 
   function goTo(n){
