@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Panel de Invitados · Sheccid XV</title>
+<style>
+:root{--bg:#FAFAF6;--ink:#3A2F2A;--muted:#8A7A70;--accent:#AE9A8A;--accent-d:#7E6A5A;--line:#E4DCD6;--danger:#A65A4E;--ok:#4F7A5E}
+*{box-sizing:border-box}
+body{margin:0;font-family:Jost,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid var(--line);background:#fff}
+h1{font-family:"Playfair Display",Georgia,serif;font-weight:500;font-size:22px;margin:0}
+main{max-width:980px;margin:24px auto;padding:0 16px}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:20px;margin-bottom:16px}
+input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;width:100%}
+button{font:inherit;padding:8px 12px;border-radius:8px;border:1px solid var(--accent);background:#fff;color:var(--accent-d);cursor:pointer;white-space:nowrap}
+button.primary{background:var(--accent);color:#fff}
+button.danger{border-color:var(--danger);color:var(--danger)}
+button:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.acciones{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);font-size:15px;vertical-align:middle}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.tok{font-family:monospace;font-size:12px;color:var(--muted)}
+.badge{font-size:12px;padding:2px 8px;border-radius:99px;background:#EDE6E3;margin-right:4px}
+.badge.ok{background:#E3EDE6;color:var(--ok)}
+.msg{margin-top:12px;font-size:14px;color:var(--danger);min-height:1em}
+.muted{color:var(--muted);font-size:14px}
+@media (max-width:700px){.hide-sm{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Invitados · Sheccid XV</h1>
+  <button id="btnSalir" hidden>Salir</button>
+</header>
+
+<main>
+  <section id="login" class="card" hidden>
+    <form id="formLogin" class="row">
+      <input id="pass" type="password" placeholder="Contraseña del panel" autocomplete="current-password" style="flex:1;min-width:220px">
+      <button class="primary" type="submit">Entrar</button>
+    </form>
+    <p id="loginMsg" class="msg"></p>
+  </section>
+
+  <section id="panel" hidden>
+    <div class="card">
+      <form id="form" class="row">
+        <input id="fNombre" placeholder="Nombre (ej. Familia García)" required style="flex:2;min-width:200px">
+        <input id="fBoletos" type="number" min="1" max="20" value="2" required style="width:110px">
+        <button class="primary" type="submit" id="btnGuardar">Agregar invitado</button>
+        <button type="button" id="btnCancelar" hidden>Cancelar</button>
+      </form>
+      <div id="msg" class="msg"></div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <strong id="resumen"></strong>
+        <input id="buscar" placeholder="Buscar…" style="max-width:240px">
+      </div>
+      <table>
+        <thead>
+          <tr><th>Nombre</th><th>Boletos</th><th class="hide-sm">Token</th><th>Estado</th><th></th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+// ===== CONFIGURACIÓN =====
+const BASE = 'https://sheccid-xv.vercel.app/';
+const API = '/api/invitados';
+// =========================
+
+const $ = id => document.getElementById(id);
+let invitados = [];
+let editandoId = null;
+let pass = sessionStorage.getItem('panelPass') || '';
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const linkDe = token => `${BASE}?token=${encodeURIComponent(token)}`;
+
+function mostrarMsg(texto, esError = true) {
+  $('msg').textContent = texto;
+  $('msg').style.color = esError ? 'var(--danger)' : 'var(--ok)';
+}
+
+// Todas las operaciones pasan por la función de Vercel
+async function llamar(body) {
+  const r = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pass, ...body }),
+  });
+  const datos = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(datos.error || 'Error de servidor');
+  return datos;
+}
+
+function mostrarPanel(activo) {
+  $('login').hidden = activo;
+  $('panel').hidden = !activo;
+  $('btnSalir').hidden = !activo;
+}
+
+// ===== ACCESO =====
+$('formLogin').onsubmit = async e => {
+  e.preventDefault();
+  pass = $('pass').value;
+  try {
+    invitados = await llamar({ action: 'list' });
+    sessionStorage.setItem('panelPass', pass);
+    $('loginMsg').textContent = '';
+    mostrarPanel(true);
+    render();
+  } catch (err) {
+    pass = '';
+    $('loginMsg').textContent = err.message;
+  }
+};
+
+$('btnSalir').onclick = () => {
+  sessionStorage.removeItem('panelPass');
+  pass = '';
+  invitados = [];
+  mostrarPanel(false);
+};
+
+async function cargar() {
+  try {
+    invitados = await llamar({ action: 'list' });
+    render();
+  } catch (err) {
+    mostrarMsg(err.message);
+  }
+}
+
+// Al abrir: si ya había sesión en esta pestaña, entrar directo
+(async () => {
+  if (pass) {
+    try {
+      invitados = await llamar({ action: 'list' });
+      mostrarPanel(true);
+      render();
+      return;
+    } catch { pass = ''; sessionStorage.removeItem('panelPass'); }
+  }
+  mostrarPanel(false);
+})();
+
+// ===== LISTA =====
+function render() {
+  const q = $('buscar').value.trim().toLowerCase();
+  const lista = invitados.filter(i => i.nombre_corto.toLowerCase().includes(q));
+  const totalBoletos = invitados.reduce((acc, i) => acc + (i.boletos || 0), 0);
+  $('resumen').textContent = `${invitados.length} invitados · ${totalBoletos} boletos`;
+
+  $('tbody').innerHTML = lista.map(i => `
+    <tr>
+      <td>${esc(i.nombre_corto)}</td>
+      <td>${esc(i.boletos)}</td>
+      <td class="tok hide-sm">${esc(i.token.slice(0, 8))}…</td>
+      <td>
+        ${i.confirmado ? '<span class="badge ok">Confirmó</span>' : ''}
+        ${i.link_enviado
+          ? '<span class="badge">Enviado</span>'
+          : '<span class="badge">Pendiente</span>'}
+      </td>
+      <td>
+        <div class="acciones">
+          <button onclick="copiar('${i.id}')">Copiar link</button>
+          <button onclick="whatsapp('${i.id}')">WhatsApp</button>
+          <button onclick="editar('${i.id}')">Editar</button>
+          <button class="danger" onclick="eliminar('${i.id}')">Eliminar</button>
+        </div>
+      </td>
+    </tr>`).join('')
+    || `<tr><td colspan="5" class="muted">Sin resultados</td></tr>`;
+}
+
+$('buscar').oninput = render;
+
+// ===== ALTA / EDICIÓN =====
+$('form').onsubmit = async e => {
+  e.preventDefault();
+  const nombre_corto = $('fNombre').value.trim();
+  const boletos = parseInt($('fBoletos').value, 10);
+  $('btnGuardar').disabled = true;
+  try {
+    if (editandoId) {
+      await llamar({ action: 'update', id: editandoId, nombre_corto, boletos });
+    } else {
+      await llamar({ action: 'create', nombre_corto, boletos });
+    }
+    mostrarMsg('Guardado', false);
+    resetForm();
+    await cargar();
+  } catch (err) {
+    mostrarMsg(err.message);
+  } finally {
+    $('btnGuardar').disabled = false;
+  }
+};
+
+function resetForm() {
+  editandoId = null;
+  $('form').reset();
+  $('fBoletos').value = 2;
+  $('btnGuardar').textContent = 'Agregar invitado';
+  $('btnCancelar').hidden = true;
+}
+$('btnCancelar').onclick = resetForm;
+
+// ===== ACCIONES POR INVITADO =====
+window.editar = id => {
+  const i = invitados.find(x => x.id === id);
+  editandoId = id;
+  $('fNombre').value = i.nombre_corto;
+  $('fBoletos').value = i.boletos;
+  $('btnGuardar').textContent = 'Guardar cambios';
+  $('btnCancelar').hidden = false;
+  $('fNombre').focus();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.eliminar = async id => {
+  const i = invitados.find(x => x.id === id);
+  if (!confirm(`¿Eliminar a ${i.nombre_corto}? Su link dejará de funcionar.`)) return;
+  try {
+    await llamar({ action: 'delete', id });
+    if (editandoId === id) resetForm();
+    mostrarMsg('Eliminado', false);
+    await cargar();
+  } catch (err) {
+    mostrarMsg(err.message);
+  }
+};
+
+window.copiar = async id => {
+  const i = invitados.find(x => x.id === id);
+  await navigator.clipboard.writeText(linkDe(i.token));
+  mostrarMsg('Link copiado', false);
+};
+
+window.whatsapp = async id => {
+  const i = invitados.find(x => x.id === id);
+  const msg = `Hola ${i.nombre_corto}, con mucho cariño te invitamos a los XV años de Sheccid 🦋\n${linkDe(i.token)}`;
+  // Se abre antes de cualquier await para no ser bloqueado por el navegador
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  if (!i.link_enviado) {
+    try {
+      await llamar({ action: 'mark_sent', id });
+      await cargar();
+    } catch (err) {
+      mostrarMsg(err.message);
+    }
+  }
+};
+</script>
+</body>
+</html>
