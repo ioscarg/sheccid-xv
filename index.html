@@ -569,6 +569,80 @@ section.instagram{
 .gift-hint{font-family:'Raleway',sans-serif;font-weight:200;font-size:9px;letter-spacing:.18em;color:rgba(249,214,213,.35);text-transform:uppercase;margin-top:14px;}
 .gift-name{display:none;}.gift-desc{display:none;}.gift-btn{display:none;}
 
+/* ─── POPUP BIENVENIDA ─── */
+#inv-splash{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(30,8,18,.72);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  opacity:0;transition:opacity .45s ease;
+  pointer-events:none;
+}
+#inv-splash.visible{opacity:1;pointer-events:auto;}
+#inv-splash.hiding{opacity:0;}
+.splash-card{
+  background:var(--dark);
+  border:1px solid rgba(197,148,170,.22);
+  border-radius:6px;
+  padding:44px 32px 36px;
+  text-align:center;
+  max-width:320px;
+  width:calc(100% - 48px);
+  position:relative;
+  transform:translateY(18px) scale(.97);
+  transition:transform .45s cubic-bezier(.22,1,.36,1);
+}
+#inv-splash.visible .splash-card{transform:translateY(0) scale(1);}
+.splash-petals{
+  font-size:22px;
+  margin-bottom:16px;
+  opacity:.7;
+  letter-spacing:8px;
+}
+.splash-para{
+  font-family:'Raleway',sans-serif;font-weight:200;
+  font-size:10px;letter-spacing:.26em;text-transform:uppercase;
+  color:rgba(249,214,213,.45);margin-bottom:14px;
+}
+.splash-nombre{
+  font-family:'Great Vibes',cursive;
+  font-size:46px;color:#f9d6d5;
+  line-height:1.1;margin-bottom:20px;
+  text-shadow:0 0 48px rgba(197,148,170,.3);
+}
+.splash-msg{
+  font-family:'Raleway',sans-serif;font-weight:200;
+  font-size:12px;color:rgba(249,214,213,.65);
+  line-height:1.8;margin-bottom:28px;
+  letter-spacing:.03em;
+}
+.splash-btn{
+  display:inline-block;
+  font-family:'Cinzel',serif;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:var(--on-dark2);
+  border:1px solid rgba(197,148,170,.4);
+  padding:12px 28px;
+  background:transparent;
+  cursor:pointer;
+  transition:all .22s;
+  width:100%;
+}
+.splash-btn:hover{background:rgba(197,148,170,.1);border-color:rgba(197,148,170,.65);}
+/* ─── NOMBRE BADGE RSVP ─── */
+.inv-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(197,148,170,.07);
+  border:1px solid rgba(197,148,170,.25);
+  border-radius:3px;
+  padding:10px 20px;
+  margin-bottom:20px;
+}
+.inv-badge-orn{font-size:10px;color:rgba(197,148,170,.6);}
+.inv-badge-name{
+  font-family:'Cinzel',serif;font-size:16px;font-weight:500;
+  color:var(--ink);letter-spacing:.08em;
+}
 /* ─── RSVP — WHITE ─── */
 .rsvp{background:var(--white);padding:72px 24px 44px;text-align:center;position:relative;overflow:hidden;}
 .rsvp::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(197,148,170,.06) 0%,transparent 100%);pointer-events:none;}
@@ -1079,6 +1153,17 @@ footer p{color:#2a0d18 !important;opacity:.8;font-weight:400 !important;}
 
 <div id="petals-container" aria-hidden="true"></div>
 
+<!-- ══ POPUP BIENVENIDA INVITADO ══ -->
+<div id="inv-splash">
+  <div class="splash-card">
+    <div class="splash-petals">🌸 ✦ 🌸</div>
+    <p class="splash-para">Tienes una invitación especial</p>
+    <p class="splash-nombre" id="splash-nombre">Invitado</p>
+    <p class="splash-msg">Esta noche de XV años fue pensada para celebrar junto a ti.<br>Bienvenido a la invitación de Sheccid.</p>
+    <button class="splash-btn" id="splash-enter">Ver la invitación →</button>
+  </div>
+</div>
+
 <!-- ══ HERO ══ -->
 <section class="hero">
   <div class="particles" aria-hidden="true">
@@ -1328,6 +1413,11 @@ footer p{color:#2a0d18 !important;opacity:.8;font-weight:400 !important;}
     <div class="orn" style="margin-bottom:36px;"><div class="orn-line"></div><svg class="orn-petal" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="translate(12,12)"><path d="M0,-11 C6,-7 6,-2 0,3 C-6,-2 -6,-7 0,-11Z" fill="rgba(230,180,200,0.9)" transform="rotate(0)"/><path d="M0,-11 C6,-7 6,-2 0,3 C-6,-2 -6,-7 0,-11Z" fill="rgba(197,148,170,0.9)" transform="rotate(72)"/><path d="M0,-11 C6,-7 6,-2 0,3 C-6,-2 -6,-7 0,-11Z" fill="rgba(230,180,200,0.9)" transform="rotate(144)"/><path d="M0,-11 C6,-7 6,-2 0,3 C-6,-2 -6,-7 0,-11Z" fill="rgba(197,148,170,0.9)" transform="rotate(216)"/><path d="M0,-11 C6,-7 6,-2 0,3 C-6,-2 -6,-7 0,-11Z" fill="rgba(230,180,200,0.9)" transform="rotate(288)"/><circle r="3" fill="rgba(249,214,213,0.95)"/><circle r="1.5" fill="rgba(197,148,170,1)"/></g></svg><div class="orn-line"></div></div>
     <span class="eyebrow">Solo falta una cosa</span>
     <h2 class="sec-title">¿Vienes?</h2>
+    <div class="inv-badge" id="inv-badge" style="display:none;">
+      <span class="inv-badge-orn">✦</span>
+      <span class="inv-badge-name" id="inv-badge-name"></span>
+      <span class="inv-badge-orn">✦</span>
+    </div>
     <p class="rsvp-desc" id="rsvp-desc">Sería un honor tenerte en esta noche tan especial para mí.</p>
     <div class="rsvp-box">
       <p class="rsvp-pre">Mándanos un mensaje para confirmar tu asistencia.</p>
@@ -2179,6 +2269,26 @@ document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preven
   resetAuto();
 })();
 
+// -- POPUP SPLASH BIENVENIDA --
+(function(){
+  var splash=document.getElementById('inv-splash');
+  var enterBtn=document.getElementById('splash-enter');
+  if(!splash)return;
+  var params=new URLSearchParams(window.location.search);
+  var token=params.get('token');
+  // Solo mostrar si hay token
+  if(!token)return;
+  // Mostrar splash
+  requestAnimationFrame(function(){
+    splash.classList.add('visible');
+  });
+  function hideSplash(){
+    splash.classList.add('hiding');
+    setTimeout(function(){ splash.style.display='none'; },480);
+  }
+  if(enterBtn) enterBtn.addEventListener('click',hideSplash);
+})();
+
 // -- PERSONALIZACION POR TOKEN (Supabase) --
 (function(){
   var SUPA_URL='https://zfdpaiybarphxpltngpf.supabase.co';
@@ -2195,8 +2305,19 @@ document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preven
     var inv=data[0];
     var nombre=inv.nombre_corto||'';
     var boletos=parseInt(inv.boletos)||1;
+    // Popup: actualizar nombre
+    var splashNombre=document.getElementById('splash-nombre');
+    if(splashNombre&&nombre) splashNombre.textContent=nombre;
+    // Badge RSVP
+    var badge=document.getElementById('inv-badge');
+    var badgeName=document.getElementById('inv-badge-name');
+    if(badge&&badgeName&&nombre){
+      badgeName.textContent=nombre;
+      badge.style.display='inline-flex';
+    }
+    // Desc RSVP (quitar el "Hola nombre" del párrafo, badge lo reemplaza)
     var desc=document.getElementById('rsvp-desc');
-    if(desc&&nombre)desc.textContent='Hola, '+nombre+' 🌸 Sería un honor tenerte en esta noche tan especial para mí.';
+    if(desc) desc.textContent='Sería un honor tenerte en esta noche tan especial para mí.';
     window.__rsvpInvitado={nombre:nombre,boletos:boletos};
     document.dispatchEvent(new CustomEvent('invitadoCargado',{detail:{nombre:nombre,boletos:boletos}}));
   })
