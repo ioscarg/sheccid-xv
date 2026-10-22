@@ -11,7 +11,7 @@
 body{margin:0;font-family:Jost,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
 header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid var(--line);background:#fff}
 h1{font-family:"Playfair Display",Georgia,serif;font-weight:500;font-size:22px;margin:0}
-main{max-width:980px;margin:24px auto;padding:0 16px}
+main{max-width:720px;margin:24px auto;padding:0 16px}
 .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:20px;margin-bottom:16px}
 input{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;width:100%}
 button{font:inherit;padding:8px 12px;border-radius:8px;border:1px solid var(--accent);background:#fff;color:var(--accent-d);cursor:pointer;white-space:nowrap}
@@ -19,16 +19,25 @@ button.primary{background:var(--accent);color:#fff}
 button.danger{border-color:var(--danger);color:var(--danger)}
 button:disabled{opacity:.5;cursor:default}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.acciones{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-table{width:100%;border-collapse:collapse;margin-top:12px}
-th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);font-size:15px;vertical-align:middle}
-th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-.tok{font-family:monospace;font-size:12px;color:var(--muted)}
-.badge{font-size:12px;padding:2px 8px;border-radius:99px;background:#EDE6E3;margin-right:4px}
-.badge.ok{background:#E3EDE6;color:var(--ok)}
 .msg{margin-top:12px;font-size:14px;color:var(--danger);min-height:1em}
 .muted{color:var(--muted);font-size:14px}
-.acc{white-space:normal}
+
+/* Lista compacta: una línea por invitado */
+#buscar{margin-bottom:12px}
+.lista{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.fila{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;padding:14px 16px;border:none;border-bottom:1px solid var(--line);border-radius:0;background:#fff;text-align:left;color:var(--ink);font-size:16px}
+.fila:last-child{border-bottom:none}
+.fila:active{background:#F5F0EC}
+.fila .boletos{font-size:13px;color:var(--muted);white-space:nowrap}
+
+/* Ficha del invitado (sheet) */
+.overlay{position:fixed;inset:0;background:rgba(58,47,42,.35);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+.overlay[hidden]{display:none}
+.sheet{background:#fff;width:100%;max-width:420px;border-radius:16px 16px 0 0;padding:20px;display:grid;gap:10px}
+.sheet h2{font-family:"Playfair Display",Georgia,serif;font-weight:500;font-size:20px;margin:0}
+.sheet button{width:100%;padding:12px;text-align:center}
+@media (min-width:701px){.overlay{align-items:center}.sheet{border-radius:16px}}
+
 @media (max-width:700px){
   header{padding:12px 16px}
   h1{font-size:18px}
@@ -37,20 +46,6 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
   .row{gap:8px}
   .row input,.row button{width:100%;flex:1 1 100%}
   #fBoletos{width:100%!important}
-  #buscar{max-width:none!important}
-  .hide-sm{display:none}
-  thead{display:none}
-  table,tbody,tr,td{display:block;width:100%}
-  table{margin-top:8px}
-  tr{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:#fff}
-  td{border:none;padding:5px 0;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:right}
-  td::before{content:attr(data-label);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left}
-  td.acc{display:block;text-align:left;padding-top:8px}
-  td.acc::before{content:none}
-  .acciones{justify-content:stretch}
-  .acciones button{flex:1 1 calc(50% - 4px);text-align:center}
-  .muted{text-align:center}
-  td[colspan]{display:block;text-align:center}
 }
 </style>
 </head>
@@ -80,21 +75,30 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
       <div id="msg" class="msg"></div>
     </div>
 
-    <div class="card">
-      <div class="row" style="justify-content:space-between">
+    <div class="card" style="padding:14px">
+      <div class="row" style="justify-content:space-between;margin-bottom:12px">
         <strong id="resumen"></strong>
-        <input id="buscar" placeholder="Buscar…" style="max-width:240px">
       </div>
-      <table>
-        <thead>
-          <tr><th>Nombre</th><th>Boletos</th><th class="hide-sm">Token</th><th>Estado</th><th></th></tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
+      <input id="buscar" placeholder="Buscar por nombre…" autocomplete="off">
+      <div id="lista" class="lista"></div>
     </div>
   </section>
 </main>
 
+<!-- Ficha del invitado -->
+<div id="modal" class="overlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <h2 id="mNombre"></h2>
+    <p id="mBoletos" class="muted" style="margin:0 0 6px"></p>
+    <button onclick="accion(copiar)">Copiar link</button>
+    <button onclick="accion(whatsapp)">Enviar por WhatsApp</button>
+    <button onclick="accion(editar)">Editar</button>
+    <button class="danger" onclick="accion(eliminar)">Eliminar</button>
+    <button onclick="cerrar()">Cerrar</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ===== CONFIGURACIÓN =====
 const BASE = 'https://sheccid-xv.vercel.app/';
@@ -104,11 +108,14 @@ const API = '/api/invitados';
 const $ = id => document.getElementById(id);
 let invitados = [];
 let editandoId = null;
+let seleccionadoId = null;
 let pass = sessionStorage.getItem('panelPass') || '';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const linkDe = token => `${BASE}?token=${encodeURIComponent(token)}`;
+const buscarInv = id => invitados.find(x => x.id === id);
+const etiquetaBoletos = n => `${n} ${n === 1 ? 'boleto' : 'boletos'}`;
 
 function mostrarMsg(texto, esError = true) {
   $('msg').textContent = texto;
@@ -153,6 +160,7 @@ $('btnSalir').onclick = () => {
   sessionStorage.removeItem('panelPass');
   pass = '';
   invitados = [];
+  cerrar();
   mostrarPanel(false);
 };
 
@@ -178,37 +186,51 @@ async function cargar() {
   mostrarPanel(false);
 })();
 
-// ===== LISTA =====
+// ===== LISTA Y BÚSQUEDA =====
 function render() {
   const q = $('buscar').value.trim().toLowerCase();
-  const lista = invitados.filter(i => i.nombre_corto.toLowerCase().includes(q));
+  // Sin texto (o al borrarlo) se muestran todos
+  const lista = q
+    ? invitados.filter(i => i.nombre_corto.toLowerCase().includes(q))
+    : invitados;
   const totalBoletos = invitados.reduce((acc, i) => acc + (i.boletos || 0), 0);
   $('resumen').textContent = `${invitados.length} invitados · ${totalBoletos} boletos`;
 
-  $('tbody').innerHTML = lista.map(i => `
-    <tr>
-      <td data-label="Nombre">${esc(i.nombre_corto)}</td>
-      <td data-label="Boletos">${esc(i.boletos)}</td>
-      <td class="tok hide-sm">${esc(i.token.slice(0, 8))}…</td>
-      <td data-label="Estado">
-        ${i.confirmado ? '<span class="badge ok">Confirmó</span>' : ''}
-        ${i.link_enviado
-          ? '<span class="badge">Enviado</span>'
-          : '<span class="badge">Pendiente</span>'}
-      </td>
-      <td class="acc">
-        <div class="acciones">
-          <button onclick="copiar('${i.id}')">Copiar link</button>
-          <button onclick="whatsapp('${i.id}')">WhatsApp</button>
-          <button onclick="editar('${i.id}')">Editar</button>
-          <button class="danger" onclick="eliminar('${i.id}')">Eliminar</button>
-        </div>
-      </td>
-    </tr>`).join('')
-    || `<tr><td colspan="5" class="muted">Sin resultados</td></tr>`;
+  $('lista').innerHTML = lista.map(i => `
+    <button class="fila" onclick="abrir('${i.id}')">
+      <span>${esc(i.nombre_corto)}</span>
+      <span class="boletos">${esc(etiquetaBoletos(i.boletos))}</span>
+    </button>`).join('')
+    || `<p class="muted" style="padding:16px;margin:0">Sin resultados</p>`;
 }
 
-$('buscar').oninput = render;
+$('buscar').addEventListener('input', render);
+
+// ===== FICHA DEL INVITADO =====
+function abrir(id) {
+  const i = buscarInv(id);
+  if (!i) return;
+  seleccionadoId = id;
+  $('mNombre').textContent = i.nombre_corto;
+  $('mBoletos').textContent = etiquetaBoletos(i.boletos);
+  $('modal').hidden = false;
+}
+
+function cerrar() {
+  $('modal').hidden = true;
+  seleccionadoId = null;
+}
+
+// Cierra la ficha y ejecuta la acción sobre el invitado seleccionado
+function accion(fn) {
+  const id = seleccionadoId;
+  cerrar();
+  if (id) fn(id);
+}
+
+$('modal').addEventListener('click', e => {
+  if (e.target.id === 'modal') cerrar();
+});
 
 // ===== ALTA / EDICIÓN =====
 $('form').onsubmit = async e => {
@@ -241,9 +263,9 @@ function resetForm() {
 }
 $('btnCancelar').onclick = resetForm;
 
-// ===== ACCIONES POR INVITADO =====
-window.editar = id => {
-  const i = invitados.find(x => x.id === id);
+// ===== ACCIONES =====
+function editar(id) {
+  const i = buscarInv(id);
   editandoId = id;
   $('fNombre').value = i.nombre_corto;
   $('fBoletos').value = i.boletos;
@@ -251,10 +273,10 @@ window.editar = id => {
   $('btnCancelar').hidden = false;
   $('fNombre').focus();
   window.scrollTo({ top: 0, behavior: 'smooth' });
-};
+}
 
-window.eliminar = async id => {
-  const i = invitados.find(x => x.id === id);
+async function eliminar(id) {
+  const i = buscarInv(id);
   if (!confirm(`¿Eliminar a ${i.nombre_corto}? Su link dejará de funcionar.`)) return;
   try {
     await llamar({ action: 'delete', id });
@@ -264,28 +286,25 @@ window.eliminar = async id => {
   } catch (err) {
     mostrarMsg(err.message);
   }
-};
+}
 
-window.copiar = async id => {
-  const i = invitados.find(x => x.id === id);
+async function copiar(id) {
+  const i = buscarInv(id);
   await navigator.clipboard.writeText(linkDe(i.token));
   mostrarMsg('Link copiado', false);
-};
+}
 
-window.whatsapp = async id => {
-  const i = invitados.find(x => x.id === id);
+function whatsapp(id) {
+  const i = buscarInv(id);
   const msg = `Hola ${i.nombre_corto}, con mucho cariño te invitamos a los XV años de Sheccid 🦋\n${linkDe(i.token)}`;
-  // Se abre antes de cualquier await para no ser bloqueado por el navegador
+  // Se abre en el mismo clic para que el navegador no lo bloquee
   window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
   if (!i.link_enviado) {
-    try {
-      await llamar({ action: 'mark_sent', id });
-      await cargar();
-    } catch (err) {
-      mostrarMsg(err.message);
-    }
+    llamar({ action: 'mark_sent', id })
+      .then(() => cargar())
+      .catch(err => mostrarMsg(err.message));
   }
-};
+}
 </script>
 </body>
 </html>
