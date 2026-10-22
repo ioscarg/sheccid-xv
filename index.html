@@ -969,29 +969,42 @@ footer p{color:#2a0d18 !important;opacity:.8;font-weight:400 !important;}
 .photos .eyebrow{color:var(--accent);}
 .photos .sec-title{color:var(--ink);}
 
-/* Carrusel 3D */
-.c3d-wrap{position:relative;height:260px;perspective:700px;margin-top:28px;overflow:hidden;}
+/* Carrusel 3D — Marco adaptivo */
+.c3d-wrap{
+  position:relative;height:290px;perspective:800px;
+  margin-top:28px;overflow:visible;
+}
+/* Base item */
 .c3d-item{
   position:absolute;top:50%;
-  width:58%;height:220px;
-  border-radius:10px;
-  background-size:cover;background-position:center;
+  border-radius:12px;
+  background-size:cover;background-position:center center;
   cursor:pointer;
-  transition:all .5s cubic-bezier(.4,0,.2,1);
+  transition:all .55s cubic-bezier(.4,0,.2,1);
   box-shadow:0 4px 16px rgba(61,26,38,.15);
 }
+/* Vertical: más alto que ancho */
+.c3d-item.vert{width:44%;height:240px;margin-top:-120px;}
+/* Horizontal: más ancho que alto */
+.c3d-item.horiz{width:64%;height:160px;margin-top:-80px;}
+/* Cuadrado */
+.c3d-item.sq{width:54%;height:200px;margin-top:-100px;}
+
+/* Activa */
 .c3d-item.active{
-  left:50%;transform:translateX(-50%) translateY(-50%) rotateY(0deg) scale(1);
+  left:50%;transform:translateX(-50%) translateY(0) scale(1);
   z-index:3;
-  box-shadow:0 8px 32px rgba(61,26,38,.22);
+  box-shadow:0 12px 36px rgba(61,26,38,.28);
 }
+/* Anterior */
 .c3d-item.prev{
-  left:2%;transform:translateY(-50%) rotateY(28deg) scale(.78);
-  z-index:1;opacity:.65;
+  left:0%;transform:translateY(0) rotateY(32deg) scale(.74);
+  z-index:1;opacity:.6;
 }
+/* Siguiente */
 .c3d-item.next{
-  right:2%;transform:translateY(-50%) rotateY(-28deg) scale(.78);
-  z-index:1;opacity:.65;
+  right:0%;transform:translateY(0) rotateY(-32deg) scale(.74);
+  z-index:1;opacity:.6;
 }
 .c3d-item.hidden{opacity:0;pointer-events:none;z-index:0;}
 
@@ -2025,7 +2038,7 @@ document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preven
   upd();
 })();
 
-// -- CARRUSEL 3D FOTOS --
+// -- CARRUSEL 3D FOTOS (Marco Adaptivo) --
 (function(){
   var photos=[
     'assets/photos/photo-01.jpg',
@@ -2036,6 +2049,9 @@ document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preven
     'assets/photos/photo-06.jpg',
     'assets/photos/photo-07.jpg'
   ];
+  // Orientación de cada foto: 'vert', 'horiz' o 'sq'
+  // Se detecta automáticamente al cargar cada imagen
+  var orientations=new Array(photos.length).fill('vert');
   var total=photos.length, cur=0, timer=null;
   var wrap=document.getElementById('c3d-wrap');
   var btnPrev=document.getElementById('c3d-prev');
@@ -2053,14 +2069,24 @@ document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preven
   var items=[];
   photos.forEach(function(src,i){
     var el=document.createElement('div');
-    el.className='c3d-item hidden';
+    el.className='c3d-item hidden vert';
     el.style.backgroundImage="url('"+src+"')";
     el.setAttribute('data-index',i);
     wrap.appendChild(el);
     items.push(el);
+    // Detectar orientación real de la foto
+    var img=new Image();
+    img.onload=function(){
+      var ratio=img.naturalWidth/img.naturalHeight;
+      if(ratio>1.15) orientations[i]='horiz';
+      else if(ratio<0.87) orientations[i]='vert';
+      else orientations[i]='sq';
+      render();
+    };
+    img.src=src;
   });
 
-  function getClass(i){
+  function getPos(i){
     var diff=(i-cur+total)%total;
     if(diff===0) return 'active';
     if(diff===1) return 'next';
@@ -2070,7 +2096,9 @@ document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preven
 
   function render(){
     items.forEach(function(el,i){
-      el.className='c3d-item '+getClass(i);
+      var pos=getPos(i);
+      var ori=orientations[i];
+      el.className='c3d-item '+ori+' '+pos;
     });
   }
 
@@ -2087,10 +2115,9 @@ document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preven
   // Click en items
   items.forEach(function(el,i){
     el.addEventListener('click',function(){
-      var cls=getClass(i);
-      if(cls==='active'){ lbOpen(i); }
-      else if(cls==='prev'){ clearInterval(timer); goTo(i); resetAuto(); }
-      else if(cls==='next'){ clearInterval(timer); goTo(i); resetAuto(); }
+      var pos=getPos(i);
+      if(pos==='active'){ lbOpen(i); }
+      else if(pos==='prev'||pos==='next'){ clearInterval(timer); goTo(i); resetAuto(); }
     });
   });
 
