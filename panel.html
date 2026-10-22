@@ -28,7 +28,30 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 .badge.ok{background:#E3EDE6;color:var(--ok)}
 .msg{margin-top:12px;font-size:14px;color:var(--danger);min-height:1em}
 .muted{color:var(--muted);font-size:14px}
-@media (max-width:700px){.hide-sm{display:none}}
+.acc{white-space:normal}
+@media (max-width:700px){
+  header{padding:12px 16px}
+  h1{font-size:18px}
+  main{margin:16px auto;padding:0 12px}
+  .card{padding:14px}
+  .row{gap:8px}
+  .row input,.row button{width:100%;flex:1 1 100%}
+  #fBoletos{width:100%!important}
+  #buscar{max-width:none!important}
+  .hide-sm{display:none}
+  thead{display:none}
+  table,tbody,tr,td{display:block;width:100%}
+  table{margin-top:8px}
+  tr{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:#fff}
+  td{border:none;padding:5px 0;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:right}
+  td::before{content:attr(data-label);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left}
+  td.acc{display:block;text-align:left;padding-top:8px}
+  td.acc::before{content:none}
+  .acciones{justify-content:stretch}
+  .acciones button{flex:1 1 calc(50% - 4px);text-align:center}
+  .muted{text-align:center}
+  td[colspan]{display:block;text-align:center}
+}
 </style>
 </head>
 <body>
@@ -164,16 +187,16 @@ function render() {
 
   $('tbody').innerHTML = lista.map(i => `
     <tr>
-      <td>${esc(i.nombre_corto)}</td>
-      <td>${esc(i.boletos)}</td>
+      <td data-label="Nombre">${esc(i.nombre_corto)}</td>
+      <td data-label="Boletos">${esc(i.boletos)}</td>
       <td class="tok hide-sm">${esc(i.token.slice(0, 8))}…</td>
-      <td>
+      <td data-label="Estado">
         ${i.confirmado ? '<span class="badge ok">Confirmó</span>' : ''}
         ${i.link_enviado
           ? '<span class="badge">Enviado</span>'
           : '<span class="badge">Pendiente</span>'}
       </td>
-      <td>
+      <td class="acc">
         <div class="acciones">
           <button onclick="copiar('${i.id}')">Copiar link</button>
           <button onclick="whatsapp('${i.id}')">WhatsApp</button>
