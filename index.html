@@ -527,47 +527,25 @@ section.instagram{
 .swatch{display:flex;flex-direction:column;align-items:center;gap:8px;width:52px;flex-shrink:0;}
 .swatch-dot{width:40px;height:40px;border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.07),0 2px 8px rgba(61,26,38,.07);position:relative;overflow:hidden;}
 .swatch-lbl{font-family:'Raleway',sans-serif;font-weight:200;font-size:9px;letter-spacing:.1em;color:var(--ink2);text-transform:uppercase;}
-/* ─── REGALOS — WHITE ─── */
-/* ── REGALOS — STACK ── */
+/* ─── REGALOS — TARJETA ÚNICA ─── */
 .gifts{background:var(--rose);padding:80px 24px;text-align:center;}
-.gifts-stack-wrap{width:100%;max-width:300px;margin:44px auto 0;position:relative;}
-.gift-stack{position:relative;width:100%;height:320px;}
-.gift-stack-bg{
-  position:absolute;left:50%;
-  width:260px;height:300px;
-  border-radius:12px;
-  transform:translateX(-50%);
-}
-.gift-stack-bg-2{top:16px;transform:translateX(-50%) rotate(5deg);background:rgba(255,255,255,.06);border:1px solid rgba(197,148,170,.15);opacity:.7;}
-.gift-stack-bg-1{top:8px;transform:translateX(-50%) rotate(-2.5deg);background:rgba(255,255,255,.09);border:1px solid rgba(197,148,170,.2);opacity:.85;}
-.gift-card-main{
-  position:absolute;top:0;left:50%;transform:translateX(-50%);
-  width:260px;min-height:300px;
-  background:rgba(255,255,255,.08);
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  border:1px solid rgba(197,148,170,.25);
-  box-shadow:0 8px 32px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.12);
-  border-radius:12px;
-  display:flex;flex-direction:column;align-items:center;
-  padding:32px 24px 28px;
-  transition:transform .3s ease,box-shadow .3s ease;
-  cursor:pointer;
-  user-select:none;
-}
-.gift-card-main:hover{transform:translateX(-50%) translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.15);}
-.gift-card-main.swipe-left{animation:swipeLeft .35s ease forwards;}
-.gift-card-main.swipe-right{animation:swipeRight .35s ease forwards;}
-@keyframes swipeLeft{to{transform:translateX(calc(-50% - 140px)) rotate(-12deg);opacity:0;}}
-@keyframes swipeRight{to{transform:translateX(calc(-50% + 140px)) rotate(12deg);opacity:0;}}
-.gift-ico-lg{width:60px;height:60px;border-radius:50%;background:rgba(197,148,170,.15);border:1px solid rgba(197,148,170,.3);display:flex;align-items:center;justify-content:center;margin-bottom:20px;}
-.gift-ico-lg svg{width:26px;height:26px;stroke:var(--accent);stroke-width:1.5;fill:none;}
-.gift-card-name{font-family:'Cinzel',serif;font-size:16px;letter-spacing:.1em;color:var(--on-dark);margin-bottom:10px;}
-.gift-card-desc{font-family:'Raleway',sans-serif;font-weight:300;font-size:12px;color:var(--on-dark2);line-height:1.8;margin-bottom:24px;text-align:center;}
-.gift-card-btn{font-family:'Raleway',sans-serif;font-weight:300;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--on-dark2);text-decoration:none;border:1px solid rgba(197,148,170,.45);padding:10px 22px;transition:all .22s;margin-top:auto;}
+.gift-orn-sep{display:flex;align-items:center;gap:12px;justify-content:center;margin:0 auto 32px;max-width:200px;}
+.gift-orn-sep-line{flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(197,148,170,.5),transparent);}
+.gift-orn-sep-ico{width:28px;height:28px;stroke:var(--on-dark2);stroke-width:1.2;fill:none;opacity:.7;}
+.gift-single{width:100%;max-width:300px;margin:0 auto;background:rgba(255,255,255,.07);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.14);border-radius:2px;padding:36px 28px 32px;display:flex;flex-direction:column;align-items:center;box-shadow:0 8px 36px rgba(0,0,0,.18);position:relative;overflow:hidden;}
+.gift-single::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(249,214,213,.3),transparent);}
+.gift-orn-top{font-size:10px;color:rgba(249,214,213,.35);letter-spacing:.24em;margin-bottom:22px;}
+.gift-store-name{font-family:'Cinzel',serif;font-size:20px;font-weight:500;letter-spacing:.2em;color:var(--on-dark);text-transform:uppercase;margin-bottom:0;}
+.gift-divider{width:44px;height:1px;background:linear-gradient(90deg,transparent,rgba(249,214,213,.4),transparent);margin:16px auto 20px;}
+.gift-store-desc{font-family:'Raleway',sans-serif;font-weight:300;font-size:12px;line-height:1.9;color:var(--on-dark2);text-align:center;margin-bottom:26px;max-width:210px;}
+.gift-mesa-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:rgba(249,214,213,.45);display:block;margin-bottom:2px;}
+.gift-mesa-num{font-family:'Great Vibes',cursive;font-size:52px;color:var(--on-dark);line-height:1.15;display:block;margin-bottom:6px;animation:giftNumIn 1s .3s both;}
+@keyframes giftNumIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.gift-mesa-sep{width:32px;height:1px;background:linear-gradient(90deg,transparent,rgba(249,214,213,.2),transparent);margin:10px auto 26px;}
+.gift-card-btn{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--on-dark2);text-decoration:none;border:1px solid rgba(197,148,170,.45);background:transparent;padding:13px 24px;transition:all .22s;display:block;width:100%;text-align:center;}
 .gift-card-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
-.gift-card-btn.disabled{opacity:.45;pointer-events:none;cursor:default;}
-.gift-hint{font-family:'Raleway',sans-serif;font-weight:200;font-size:9px;letter-spacing:.18em;color:rgba(249,214,213,.35);text-transform:uppercase;margin-top:14px;}
-.gift-name{display:none;}.gift-desc{display:none;}.gift-btn{display:none;}
+.gift-orn-bot{font-size:10px;color:rgba(249,214,213,.22);letter-spacing:.22em;margin-top:20px;}
+.gift-footnote{font-family:'Raleway',sans-serif;font-weight:300;font-size:10px;color:rgba(249,214,213,.45);margin-top:20px;letter-spacing:.04em;}
 
 /* ─── POPUP BIENVENIDA ─── */
 #inv-splash{
@@ -913,15 +891,19 @@ footer p+p{margin-top:6px;}
 .cd-lbl{color:#2a0d18 !important;opacity:.75;font-weight:400 !important;}
 .cal-btn{color:#2a0d18;border-color:rgba(42,13,24,.25);background:rgba(255,255,255,.35);font-weight:400;border-radius:4px;}
 .cal-btn:hover{border-color:#2a0d18;background:rgba(255,255,255,.55);}
-.gift-card-main{background:#f7eef1 !important;border:1px solid rgba(42,13,24,.1) !important;box-shadow:0 8px 28px rgba(42,13,24,.08) !important;border-radius:4px !important;}
-.gift-stack-bg-1{background:rgba(255,255,255,.45) !important;border-color:rgba(42,13,24,.08) !important;}
-.gift-stack-bg-2{background:rgba(255,255,255,.28) !important;border-color:rgba(42,13,24,.06) !important;}
-.gift-ico-lg{background:rgba(42,13,24,.07) !important;border-color:rgba(42,13,24,.12) !important;}
-.gift-card-name{color:#2a0d18 !important;font-weight:500 !important;}
-.gift-card-desc{color:#2a0d18 !important;font-weight:400 !important;opacity:.8;}
-.gift-card-btn{color:#2a0d18 !important;border-color:rgba(42,13,24,.3) !important;background:rgba(255,255,255,.4) !important;font-weight:400 !important;}
-.gift-card-btn:hover{background:#2a0d18 !important;color:#fff !important;border-color:#2a0d18 !important;}
-.gift-hint{color:rgba(42,13,24,.5) !important;font-weight:400 !important;}
+.gift-single{background:rgba(255,255,255,.55) !important;border-color:rgba(255,255,255,.75) !important;box-shadow:0 8px 36px rgba(42,13,24,.12) !important;}
+.gift-store-name{color:#2a0d18 !important;}
+.gift-divider{background:linear-gradient(90deg,transparent,rgba(42,13,24,.35),transparent) !important;}
+.gift-store-desc{color:rgba(42,13,24,.68) !important;}
+.gift-mesa-label{color:rgba(42,13,24,.5) !important;}
+.gift-mesa-num{color:#3d1a26 !important;font-size:52px !important;}
+.gift-mesa-sep{background:linear-gradient(90deg,transparent,rgba(42,13,24,.2),transparent) !important;}
+.gift-card-btn{color:#2a0d18 !important;border-color:rgba(42,13,24,.3) !important;background:rgba(255,255,255,.4) !important;}
+.gift-card-btn:hover{background:#3d1a26 !important;color:#fff !important;border-color:#3d1a26 !important;}
+.gift-orn-top,.gift-orn-bot{color:rgba(42,13,24,.35) !important;}
+.gift-footnote{color:rgba(42,13,24,.45) !important;}
+.gift-orn-sep-line{background:linear-gradient(to right,transparent,rgba(42,13,24,.3),transparent) !important;}
+.gift-orn-sep-ico{stroke:rgba(42,13,24,.55) !important;}
 /* Mensajes — fondo blanco, texto tinto */
 .messages-sec .eyebrow{color:var(--accent);}
 .messages-sec .sec-title{color:var(--ink);}
@@ -1385,23 +1367,30 @@ footer p{color:#2a0d18 !important;opacity:.8;font-weight:400 !important;}
 <section class="gifts">
   <span class="eyebrow">Si quieres consentirme</span>
   <h2 class="sec-title">Mesa de Regalos</h2>
-  <p class="sec-text">Tu presencia es el regalo más grande que puedo pedir. Si además quieres consentirme, aquí te dejo algunas ideas con todo mi cariño.</p>
-  <div class="gifts-stack-wrap">
-    <div class="gift-stack">
-      <div class="gift-stack-bg gift-stack-bg-2"></div>
-      <div class="gift-stack-bg gift-stack-bg-1"></div>
-      <div class="gift-card-main" id="gift-card">
-        <div class="gift-ico-lg" id="gift-ico">
-          <svg id="gift-svg-liverpool" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          <svg id="gift-svg-sobre" viewBox="0 0 24 24" style="display:none;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        </div>
-        <p class="gift-card-name" id="gift-card-name">Liverpool</p>
-        <p class="gift-card-desc" id="gift-card-desc">Consulta mi mesa de regalos directamente en la tienda o en línea.</p>
-        <a href="https://www.liverpool.com.mx/tienda/mesaderegalos" target="_blank" rel="noopener" class="gift-card-btn" id="gift-card-btn">Ver mesa de regalos</a>
-      </div>
-    </div>
-    <p class="gift-hint">← desliza para ver más →</p>
+  <p class="sec-text">Tu presencia es el regalo más grande que puedo pedir. Si además quieres consentirme, aquí te dejo mi mesa con todo mi cariño.</p>
+  <div class="gift-orn-sep">
+    <div class="gift-orn-sep-line"></div>
+    <svg class="gift-orn-sep-ico" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M20 12v10H4V12"/>
+      <path d="M22 7H2v5h20V7z"/>
+      <path d="M12 22V7"/>
+      <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+      <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+    </svg>
+    <div class="gift-orn-sep-line"></div>
   </div>
+  <div class="gift-single">
+    <div class="gift-orn-top">✦ &nbsp; ✦ &nbsp; ✦</div>
+    <p class="gift-store-name">Liverpool</p>
+    <div class="gift-divider"></div>
+    <p class="gift-store-desc">Encuentra mi lista de regalos en tienda o en línea.</p>
+    <span class="gift-mesa-label">No. de mesa</span>
+    <span class="gift-mesa-num">60068328</span>
+    <div class="gift-mesa-sep"></div>
+    <a href="https://mesaderegalos.liverpool.com.mx/milistaderegalos/60068328" target="_blank" rel="noopener" class="gift-card-btn">Ver lista en Liverpool →</a>
+    <div class="gift-orn-bot">· · ·</div>
+  </div>
+  <p class="gift-footnote">· También disponible en cualquier tienda Liverpool ·</p>
 </section>
 
 <!-- ══ RSVP ══ -->
@@ -1590,101 +1579,6 @@ function tick(){
 }
 tick();setInterval(tick,1000);
 
-// ── GIFT STACK SWIPE ──
-(function(){
-  const cards = [
-    {name:'Sobre', desc:'Si prefieres la tradición, en mi recepción habrá un buzón especial donde puedes depositar tu tarjeta.', btn:'Disponible en el evento', href:'#', ico:'sobre', disabled:true},
-    {name:'Liverpool', desc:'Consulta mi mesa de regalos directamente en la tienda o en línea.', btn:'Ver mesa de regalos', href:'https://www.liverpool.com.mx/tienda/mesaderegalos', ico:'liverpool', disabled:false}
-  ];
-  let current = 0;
-  const card  = document.getElementById('gift-card');
-  const nameEl= document.getElementById('gift-card-name');
-  const descEl= document.getElementById('gift-card-desc');
-  const btnEl = document.getElementById('gift-card-btn');
-  const icoL  = document.getElementById('gift-svg-liverpool');
-  const icoS  = document.getElementById('gift-svg-sobre');
-  const bg1   = document.querySelector('.gift-stack-bg-1');
-  const bg2   = document.querySelector('.gift-stack-bg-2');
-  if(!card) return;
-
-  let busy = false;
-
-  function setCard(idx){
-    const c = cards[idx];
-    nameEl.textContent = c.name;
-    descEl.textContent = c.desc;
-    btnEl.textContent  = c.btn;
-    btnEl.href = c.href;
-    if(c.disabled){ btnEl.classList.add('disabled'); btnEl.removeAttribute('target'); }
-    else { btnEl.classList.remove('disabled'); btnEl.setAttribute('target','_blank'); }
-    icoL.style.display = c.ico==='liverpool' ? '' : 'none';
-    icoS.style.display = c.ico==='sobre'     ? '' : 'none';
-    current = idx;
-  }
-
-  function promote(){
-    if(!bg1||!bg2) return;
-    bg1.style.transition='all .4s cubic-bezier(.4,0,.2,1)';
-    bg2.style.transition='all .4s cubic-bezier(.4,0,.2,1)';
-    bg1.style.transform='translateX(-50%) rotate(0deg)';bg1.style.top='0';bg1.style.opacity='1';
-    bg2.style.transform='translateX(-50%) rotate(-2deg)';bg2.style.top='8px';bg2.style.opacity='.85';
-  }
-  function resetBg(){
-    if(!bg1||!bg2) return;
-    bg1.style.transition='all .4s cubic-bezier(.4,0,.2,1)';
-    bg2.style.transition='all .4s cubic-bezier(.4,0,.2,1)';
-    bg1.style.transform='translateX(-50%) rotate(-2.5deg)';bg1.style.top='8px';bg1.style.opacity='.85';
-    bg2.style.transform='translateX(-50%) rotate(5deg)';bg2.style.top='16px';bg2.style.opacity='.7';
-  }
-
-  // Touch
-  let tStartX=0, tStartY=0, tIsHoriz=null, tTouching=false;
-  card.addEventListener('touchstart', function(e){
-    if(busy) return;
-    tStartX=e.touches[0].clientX; tStartY=e.touches[0].clientY;
-    tIsHoriz=null; tTouching=true;
-  },{passive:true});
-  card.addEventListener('touchmove', function(e){
-    if(!tTouching||tIsHoriz!==null) return;
-    const dx=Math.abs(e.touches[0].clientX-tStartX);
-    const dy=Math.abs(e.touches[0].clientY-tStartY);
-    if(dx>6||dy>6){ tIsHoriz=dx>dy; if(tIsHoriz) e.preventDefault(); }
-  },{passive:false});
-  card.addEventListener('touchend', function(e){
-    if(!tTouching) return; tTouching=false;
-    if(tIsHoriz!==true) return;
-    const dx=tStartX-e.changedTouches[0].clientX;
-    if(Math.abs(dx)<30) return;
-    goNext(dx>0?1:-1);
-  });
-
-  // Mouse
-  let mStartX=0, mDragging=false;
-  card.addEventListener('mousedown', function(e){ if(busy) return; mStartX=e.clientX; mDragging=true; e.preventDefault(); });
-  window.addEventListener('mousemove', function(e){ if(!mDragging) return; });
-  window.addEventListener('mouseup', function(e){
-    if(!mDragging) return; mDragging=false;
-    const dx=mStartX-e.clientX;
-    if(Math.abs(dx)<30) return;
-    goNext(dx>0?1:-1);
-  });
-
-  function goNext(dir){
-    if(busy) return; busy=true;
-    const next=(current+dir+cards.length)%cards.length;
-    const cls=dir>0?'swipe-left':'swipe-right';
-    card.classList.add(cls);
-    promote();
-    setTimeout(()=>{
-      card.classList.remove(cls);
-      setCard(next);
-      resetBg();
-      setTimeout(()=>{ busy=false; },60);
-    },360);
-  }
-
-  setCard(0);
-})();
 
 // ── RIPPLE EN CONFIRMAR ──
 (function(){
@@ -1767,7 +1661,7 @@ tick();setInterval(tick,1000);
     '.cd-label','.cd-grid',
     '.itin-inner',
     '.dresscode-inner',
-    '.gifts-stack-wrap',
+    '.gift-single',
     '.rsvp-inner',
     '.ig-inner',
     '.closing-inner',
