@@ -73,6 +73,12 @@ button.danger:hover{background:rgba(139,42,60,.06)}
 .fila:last-child{border-bottom:none}
 .fila .boletos{font-family:'Raleway',sans-serif;font-weight:300;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);white-space:nowrap}
 
+/* Paginación de la lista de invitados */
+.paginador{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px}
+.paginador button{min-width:110px}
+.paginador button:disabled{opacity:.35}
+#infoPag{flex:1;text-align:center;font-family:'Cinzel',serif;font-size:12px;letter-spacing:.1em;color:var(--ink2)}
+
 /* Mensajes de la invitación */
 .mensajes{display:grid;gap:12px}
 .msj{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:4px;padding:14px 16px;background:var(--white)}
@@ -99,6 +105,9 @@ button.danger:hover{background:rgba(139,42,60,.06)}
   .row input,.row button{width:100%;flex:1 1 100%}
   #fBoletos{width:100%!important}
   .tabs-top{display:none}
+  .paginador{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .paginador button{min-width:0;width:100%}
+  #infoPag{grid-column:1/-1;order:-1}
   .tabs-bottom{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--white);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 16px rgba(61,26,38,.06)}
   .tabs-bottom button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 9px;border:none;border-radius:0;background:transparent;color:var(--ink2);font-size:10px;letter-spacing:.1em}
   .tabs-bottom button:hover{background:transparent}
@@ -152,6 +161,11 @@ button.danger:hover{background:rgba(139,42,60,.06)}
         </div>
         <input id="buscar" placeholder="Buscar por nombre…" autocomplete="off">
         <div id="lista" class="lista"></div>
+        <div id="paginador" class="paginador" hidden>
+          <button type="button" id="btnAnt">Anterior</button>
+          <span id="infoPag"></span>
+          <button type="button" id="btnSig">Siguiente</button>
+        </div>
       </div>
     </div>
 
@@ -205,6 +219,8 @@ let invitados = [];
 let mensajes = [];
 let editandoId = null;
 let seleccionadoId = null;
+let pagina = 1;
+const POR_PAGINA = 25;
 let pass = sessionStorage.getItem('panelPass') || '';
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
@@ -309,15 +325,35 @@ function render() {
   const totalBoletos = invitados.reduce((acc, i) => acc + (i.boletos || 0), 0);
   $('resumen').textContent = `${invitados.length} invitados · ${totalBoletos} boletos`;
 
-  $('lista').innerHTML = lista.map(i => `
+  // Paginación: 25 por página, ajustando la página si la lista se acortó
+  const totalPaginas = Math.max(1, Math.ceil(lista.length / POR_PAGINA));
+  if (pagina > totalPaginas) pagina = totalPaginas;
+  const inicio = (pagina - 1) * POR_PAGINA;
+  const visibles = lista.slice(inicio, inicio + POR_PAGINA);
+
+  $('lista').innerHTML = visibles.map(i => `
     <button class="fila" onclick="abrir('${i.id}')">
       <span>${esc(i.nombre_corto)}</span>
       <span class="boletos">${esc(etiquetaBoletos(i.boletos))}</span>
     </button>`).join('')
     || `<p class="muted" style="padding:18px;text-align:center">Sin resultados</p>`;
+
+  $('paginador').hidden = totalPaginas <= 1;
+  $('infoPag').textContent = `Página ${pagina} de ${totalPaginas}`;
+  $('btnAnt').disabled = pagina <= 1;
+  $('btnSig').disabled = pagina >= totalPaginas;
 }
 
-$('buscar').addEventListener('input', render);
+function cambiarPagina(delta) {
+  pagina += delta;
+  render();
+  $('lista').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+$('btnAnt').onclick = () => cambiarPagina(-1);
+$('btnSig').onclick = () => cambiarPagina(1);
+
+// Al escribir en la búsqueda, siempre regresa a la página 1
+$('buscar').addEventListener('input', () => { pagina = 1; render(); });
 
 // ===== MENSAJES DE LA INVITACIÓN (solo lectura) =====
 async function cargarMensajes() {
